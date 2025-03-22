@@ -1,0 +1,42 @@
+const ordersMock = [
+  {
+    'id': '1',
+    'customer_name': 'John Doe',
+    'product_name': 'Product 1',
+    'price': 100,
+    'status': 'pending',
+    'created_at': '2021-01-01',
+  },
+  {
+    'id': '2',
+    'customer_name': 'Jane Smith',
+    'product_name': 'Product 2',
+    'price': 200,
+    'status': 'completed',
+    'created_at': '2021-01-02',
+  },
+  {
+    'id': '3',
+    'customer_name': 'Alice Johnson',
+    'product_name': 'Product 3',
+    'price': 300,
+    'status': 'cancelled',
+    'created_at': '2021-01-03',
+  },
+  {
+    'id': '4',
+    'customer_name': 'Bob Brown',
+    'product_name': 'Product 4',
+    'price': 400,
+    'status': 'pending',
+    'created_at': '2021-01-04',
+  },
+  {
+    'id': '5',
+    'customer_name': 'Charlie Davis',
+    'product_name': 'Product 5',
+    'price': 500,
+    'status': 'completed',
+    'created_at': '2021-01-05',
+  },
+];

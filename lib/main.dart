@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'config/router.dart';
 import 'core/di/service_locator.dart' as di;
+import 'core/router/router.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

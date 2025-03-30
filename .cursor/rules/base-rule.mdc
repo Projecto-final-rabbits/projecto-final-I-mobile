@@ -1,0 +1,89 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Cursor AI Rules for Flutter Clean Architecture Project
+
+## Project Architecture & Organization
+- **Clean Architecture:**
+  - Organize your project into three main layers: **Domain**, **Data**, and **Presentation**.
+  - The **Domain layer** must contain business logic and entities without any dependencies on external frameworks or packages.
+  - The **Data layer** should implement repositories and data sources, interfacing with external services while conforming to contracts defined in the Domain layer.
+  - The **Presentation layer** is responsible for UI, user interactions, and state management.
+
+## State Management
+- **flutter_bloc with Cubits:**
+  - All state management must be implemented using **flutter_bloc** with **Cubits only**.
+  - Avoid using the full Bloc implementation; keep the state logic lean by using Cubits for simplicity.
+  - Ensure that each Cubit handles a single responsibility, maintaining clear boundaries for state transitions.
+
+## Dependency Injection
+- **get_it:**
+  - Implement dependency injection using **get_it**.
+  - All service, repository, and Cubit dependencies must be registered with get_it at the application’s entry point.
+  - Ensure that dependency injection is used consistently across all layers, promoting modularity and testability.
+
+## Code Quality & Best Practices
+- **High Standards:**
+  - Write clean, well-documented, and maintainable code that adheres to SOLID principles.
+  - Use meaningful and consistent naming conventions for variables, methods, and classes.
+  - Structure your code to separate concerns, ensuring that each module or component has a single, clear responsibility.
+  - Include unit tests, especially for business logic and Cubit classes, to ensure reliability and ease of maintenance.
+  - Provide appropriate error handling and logging where necessary.
+
+## General Guidelines
+- Follow Flutter’s official guidelines and recommended project structure.
+- Ensure that UI components (widgets) are kept as simple as possible, delegating business logic to Cubits and the Domain layer.
+- Always use asynchronous programming practices (e.g., using Futures and Streams) when dealing with data operations and external calls.
+- Maintain a modular and decoupled codebase to support scalability and future enhancements.
+
+## Testing Guidelines
+
+### ✅ General Rules
+- Every class with business logic must have **unit tests**.
+- All Cubits, use cases, and repository implementations must be tested.
+- Aim for **at least 90% code coverage** across the Domain and Data layers.
+- Use **mocking** (e.g., with `mocktail`) for dependencies in unit tests.
+- Avoid testing private/internal methods directly; focus on public behavior.
+
+### 🧩 Layer-Specific Testing
+
+#### Domain Layer
+- Write unit tests for all:
+  - **Use Cases**
+  - **Entities** (if they contain logic)
+  - **Interfaces** (ensure expected behavior via mock contracts)
+
+#### Data Layer
+- Test:
+  - **Repository Implementations** using mock data sources
+  - **Data Sources** (e.g., remote APIs or local storage logic)
+  - Handle and verify all **error scenarios**, especially for API failures
+
+#### Presentation Layer
+- Test:
+  - All **Cubits** for each possible state transition
+  - **Input validation logic**
+- UI widget testing is optional but recommended for complex UIs using `flutter_test`
+
+### 🧰 Tooling
+- Use:
+  - `flutter_test` for core testing
+  - `mocktail` or `mockito` for mocking
+  - `bloc_test` for Cubit/Bloc state tests
+  - `coverage` package to track code coverage
+
+### 🧪 Example Expectations
+- A Cubit with 3 states (Initial, Loading, Success/Error) must have tests for:
+  - Initial state
+  - Transition to Loading
+  - Successful outcome
+  - Error handling
+
+### 🧼 Test Hygiene
+- Keep test files in a mirrored directory structure under `test/`
+- Name test files using `snake_case` and suffix with `_test.dart`
+- Use clear and descriptive test names
+- Avoid code duplication and overly large test setups

@@ -2,6 +2,7 @@ import 'package:cpp_app/features/orders/data/datasources/order_remote_data_sourc
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/orders/data/datasources/order_remote_data_source.dart';
 import '../../features/orders/domain/repositories/order_repository.dart';
@@ -13,10 +14,11 @@ import '../../features/orders/presentation/cubits/create_order_cubit.dart';
 import '../../features/orders/presentation/cubits/order_detail_cubit.dart';
 import '../../features/orders/presentation/cubits/orders_cubit.dart';
 import '../network/network_info.dart';
+import '../theme/theme_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
-void setupServiceLocator() {
+Future<void> setupServiceLocator() async {
   // Core
   sl.registerLazySingleton<NetworkInfo>(
     () => NetworkInfoImpl(sl<InternetConnectionChecker>()),
@@ -26,6 +28,19 @@ void setupServiceLocator() {
   sl.registerLazySingleton(() => InternetConnectionChecker());
   sl.registerLazySingleton(
     () => Dio()..options.baseUrl = 'http://192.168.68.55:3000',
+  );
+
+  // Register SharedPreferences as a singleton
+  sl.registerSingletonAsync<SharedPreferences>(() async {
+    return await SharedPreferences.getInstance();
+  });
+
+  // Wait for SharedPreferences to be ready
+  await sl.isReady<SharedPreferences>();
+
+  // Now register ThemeCubit with the available SharedPreferences
+  sl.registerLazySingleton<ThemeCubit>(
+    () => ThemeCubit(sl<SharedPreferences>()),
   );
 
   // Orders Feature

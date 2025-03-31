@@ -76,3 +76,52 @@ The application currently implements the **Orders** feature with three main flow
 For help getting started with Flutter development:
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Clean Architecture in Flutter](https://resocoder.com/flutter-clean-architecture-tdd/)
+
+## Firebase & CI/CD Setup
+
+### Firebase Setup
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Add Android and iOS apps to your Firebase project
+3. Download the configuration files:
+   - For Android: `google-services.json` and place it in `android/app/`
+   - For iOS: `GoogleService-Info.plist` and place it in `ios/Runner/`
+
+4. Initialize Firebase in your Flutter app:
+
+```dart
+// In main.dart
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+```
+
+### GitHub Actions CI/CD Setup
+
+The project is configured with GitHub Actions for CI/CD. To enable the workflow:
+
+1. Add the following secrets to your GitHub repository:
+   - `FIREBASE_TOKEN`: Firebase CLI token (get it with `firebase login:ci`)
+   - `FIREBASE_APP_ID`: Your Android app ID from Firebase
+   - `FIREBASE_IOS_APP_ID`: Your iOS app ID from Firebase
+   - `FIREBASE_PROJECT_ID`: Your Firebase project ID
+   - `FIREBASE_SERVICE_ACCOUNT`: Firebase service account credentials (JSON)
+   - `MATCH_PASSWORD`: Password for your iOS certificates repository
+   - `MATCH_GIT_BASIC_AUTH`: Base64-encoded GitHub username:token for fastlane match
+   - `APPLE_ID`: Your Apple ID email
+   - `TEAM_ID`: Your Apple Developer Team ID
+   - `APP_STORE_CONNECT_API_KEY_CONTENT`: Your App Store Connect API key JSON
+
+2. Push to the `main` branch to trigger the workflow
+3. You can also manually trigger the workflow from the GitHub Actions tab
+
+### Testing Distribution
+
+Once set up, each push to `main` will:
+1. Run tests
+2. Build Android APK and iOS IPA
+3. Distribute to testers via Firebase App Distribution

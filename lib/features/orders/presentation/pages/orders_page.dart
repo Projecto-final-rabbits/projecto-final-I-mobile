@@ -15,15 +15,7 @@ class OrdersPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => sl<OrdersCubit>()..loadOrders(),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Órdenes'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => context.pushNamed('create-order'),
-            ),
-          ],
-        ),
+        appBar: AppBar(title: const Text('Órdenes')),
         body: BlocBuilder<OrdersCubit, OrdersState>(
           builder: (context, state) {
             if (state is OrdersLoading) {
@@ -36,6 +28,11 @@ class OrdersPage extends StatelessWidget {
               return const Center(child: Text('Sin datos'));
             }
           },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => context.pushNamed('create-order'),
+          tooltip: 'Crear Orden',
+          child: const Icon(Icons.add),
         ),
       ),
     );

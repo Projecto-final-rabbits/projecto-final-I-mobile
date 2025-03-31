@@ -56,7 +56,6 @@ class MyApp extends StatelessWidget {
         textScaleFactor = 1.2;
         break;
       case TextSize.medium:
-      default:
         textScaleFactor = 1.0;
         break;
     }

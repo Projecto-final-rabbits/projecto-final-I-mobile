@@ -12,7 +12,12 @@
           "package_name": "com.miso.rabbits.cpp_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "621477859939-ihris7gd37u3fl7lnum85r97atfepiui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA3qvcVverFk3vK7ONlSYDOPIf-YhPDe7s"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "621477859939-ihris7gd37u3fl7lnum85r97atfepiui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../cubits/auth_cubit.dart';
 import '../cubits/auth_state.dart';
 import '../widgets/auth_input_field.dart';
-import '../widgets/google_sign_in_button.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -156,26 +155,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ? const CircularProgressIndicator()
                                   : const Text('Registrarse'),
                         ),
-                        const SizedBox(height: 20),
-                        const Row(
-                          children: [
-                            Expanded(child: Divider()),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('O continúa con'),
-                            ),
-                            Expanded(child: Divider()),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        GoogleSignInButton(
-                          onPressed:
-                              isLoading
-                                  ? null
-                                  : () {
-                                    context.read<AuthCubit>().loginWithGoogle();
-                                  },
-                        ),
+
                         const SizedBox(height: 32),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

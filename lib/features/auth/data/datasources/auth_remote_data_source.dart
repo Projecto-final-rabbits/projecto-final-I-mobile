@@ -11,9 +11,6 @@ abstract class AuthRemoteDataSource {
     String name,
   );
 
-  /// Sign in with Google
-  Future<UserModel> signInWithGoogle();
-
   /// Sign out the current user
   Future<void> signOut();
 

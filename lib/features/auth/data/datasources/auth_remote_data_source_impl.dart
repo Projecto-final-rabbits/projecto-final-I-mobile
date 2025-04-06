@@ -1,17 +1,21 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/user.dart';
 import '../models/user_model.dart';
 import 'auth_remote_data_source.dart';
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final firebase_auth.FirebaseAuth firebaseAuth;
   final GoogleSignIn googleSignIn;
+  final Dio httpSeller;
 
   AuthRemoteDataSourceImpl({
     required this.firebaseAuth,
     required this.googleSignIn,
+    required this.httpSeller,
   });
 
   @override
@@ -24,8 +28,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: email,
         password: password,
       );
+      final user = userCredential.user;
 
-      if (userCredential.user == null) {
+      if (user == null) {
         throw AuthException(message: 'No se pudo iniciar sesión');
       }
 
@@ -38,10 +43,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> signUpWithEmailAndPassword(
+  Future<UserModel> signUpClient(
     String email,
     String password,
     String name,
+    String clientType,
+    String address,
+    String phone,
   ) async {
     try {
       final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
@@ -56,11 +64,67 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Update the user's display name
       await userCredential.user!.updateDisplayName(name);
 
-      // Refresh user to get updated data
-      await userCredential.user!.reload();
-      final updatedUser = firebaseAuth.currentUser;
+      // Create user model
+      final userModel = UserModel.fromFirebaseUser(
+        userCredential.user!,
+        role: UserRole.client,
+        clientType: clientType,
+        address: address,
+        phone: phone,
+      );
 
-      return UserModel.fromFirebaseUser(updatedUser!);
+      await httpSeller.post(
+        '/clientes/',
+        data: {
+          'nombre': name,
+          'tipo_cliente': clientType,
+          'direccion': address,
+          'telefono': phone,
+          'email': email,
+        },
+      );
+
+      return userModel;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw AuthException(message: _getErrorMessage(e.code));
+    } catch (e) {
+      throw AuthException(message: 'Error desconocido: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<UserModel> signUpSeller(
+    String email,
+    String password,
+    String name,
+    String zone,
+    String phone,
+  ) async {
+    try {
+      final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userCredential.user == null) {
+        throw AuthException(message: 'No se pudo crear la cuenta');
+      }
+
+      await userCredential.user!.updateDisplayName(name);
+
+      final userModel = UserModel.fromFirebaseUser(
+        userCredential.user!,
+        role: UserRole.seller,
+        zone: zone,
+        phone: phone,
+      );
+
+      await httpSeller.post(
+        '/vendedores/',
+        data: {'nombre': name, 'zona': zone, 'email': email, 'telefono': phone},
+      );
+
+      return userModel;
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw AuthException(message: _getErrorMessage(e.code));
     } catch (e) {
@@ -84,6 +148,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (user == null) {
         return null;
       }
+
       return UserModel.fromFirebaseUser(user);
     } catch (e) {
       throw AuthException(message: 'Error al obtener el usuario actual');

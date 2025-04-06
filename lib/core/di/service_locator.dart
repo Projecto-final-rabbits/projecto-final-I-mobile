@@ -5,7 +5,8 @@ import 'package:cpp_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:cpp_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_in_with_email_password.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_out.dart';
-import 'package:cpp_app/features/auth/domain/usecases/sign_up_with_email_password.dart';
+import 'package:cpp_app/features/auth/domain/usecases/sign_up_client.dart';
+import 'package:cpp_app/features/auth/domain/usecases/sign_up_seller.dart';
 import 'package:cpp_app/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:cpp_app/features/orders/data/datasources/order_remote_data_source_impl.dart';
 import 'package:dio/dio.dart';
@@ -38,7 +39,9 @@ Future<void> setupServiceLocator() async {
   // External
   sl.registerLazySingleton(() => InternetConnectionChecker());
   sl.registerLazySingleton(
-    () => Dio()..options.baseUrl = 'http://192.168.68.55:3000',
+    () =>
+        Dio()
+          ..options.baseUrl = 'https://ventas-135751842587.us-central1.run.app',
   );
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => GoogleSignIn());
@@ -62,6 +65,7 @@ Future<void> setupServiceLocator() async {
     () => AuthRemoteDataSourceImpl(
       firebaseAuth: sl<FirebaseAuth>(),
       googleSignIn: sl<GoogleSignIn>(),
+      httpSeller: sl<Dio>(),
     ),
   );
 
@@ -75,8 +79,8 @@ Future<void> setupServiceLocator() async {
 
   // Use cases
   sl.registerLazySingleton(() => SignInWithEmailPassword(sl<AuthRepository>()));
-  sl.registerLazySingleton(() => SignUpWithEmailPassword(sl<AuthRepository>()));
-
+  sl.registerLazySingleton(() => SignUpClient(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => SignUpSeller(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SignOut(sl<AuthRepository>()));
   sl.registerLazySingleton(() => GetCurrentUser(sl<AuthRepository>()));
 
@@ -84,7 +88,8 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton(
     () => AuthCubit(
       signInWithEmailPassword: sl<SignInWithEmailPassword>(),
-      signUpWithEmailPassword: sl<SignUpWithEmailPassword>(),
+      signUpClient: sl<SignUpClient>(),
+      signUpSeller: sl<SignUpSeller>(),
       signOut: sl<SignOut>(),
       getCurrentUser: sl<GetCurrentUser>(),
     ),

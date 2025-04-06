@@ -25,8 +25,17 @@ jobs:
       - name: Analyze project
         run: flutter analyze
       
-      - name: Run tests
-        run: flutter test
+      - name: Run tests with coverage
+        run: flutter test --coverage
+      
+      - name: Check code coverage
+        run: |
+          COVERAGE_PERCENT=$(lcov --summary coverage/lcov.info | grep "lines" | awk '{print $4}' | cut -d'%' -f1)
+          echo "Code coverage: $COVERAGE_PERCENT%"
+          if (( $(echo "$COVERAGE_PERCENT < 80" | bc -l) )); then
+            echo "Error: Code coverage is below 80%"
+            exit 1
+          fi
 
   build-android:
     needs: build-and-test

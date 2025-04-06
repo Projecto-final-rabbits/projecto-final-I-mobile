@@ -125,3 +125,6 @@ Once set up, each push to `main` will:
 1. Run tests
 2. Build Android APK and iOS IPA
 3. Distribute to testers via Firebase App Distribution
+
+
+flutter test --coverage && lcov --summary coverage/lcov.info

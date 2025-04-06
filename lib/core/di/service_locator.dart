@@ -4,7 +4,6 @@ import 'package:cpp_app/features/auth/data/repositories/auth_repository_impl.dar
 import 'package:cpp_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:cpp_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_in_with_email_password.dart';
-import 'package:cpp_app/features/auth/domain/usecases/sign_in_with_google.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_out.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_up_with_email_password.dart';
 import 'package:cpp_app/features/auth/presentation/cubits/auth_cubit.dart';
@@ -77,7 +76,7 @@ Future<void> setupServiceLocator() async {
   // Use cases
   sl.registerLazySingleton(() => SignInWithEmailPassword(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SignUpWithEmailPassword(sl<AuthRepository>()));
-  sl.registerLazySingleton(() => SignInWithGoogle(sl<AuthRepository>()));
+
   sl.registerLazySingleton(() => SignOut(sl<AuthRepository>()));
   sl.registerLazySingleton(() => GetCurrentUser(sl<AuthRepository>()));
 
@@ -86,7 +85,6 @@ Future<void> setupServiceLocator() async {
     () => AuthCubit(
       signInWithEmailPassword: sl<SignInWithEmailPassword>(),
       signUpWithEmailPassword: sl<SignUpWithEmailPassword>(),
-      signInWithGoogle: sl<SignInWithGoogle>(),
       signOut: sl<SignOut>(),
       getCurrentUser: sl<GetCurrentUser>(),
     ),

@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/sign_in_with_email_password.dart';
-import '../../domain/usecases/sign_in_with_google.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/sign_up_with_email_password.dart';
 import 'auth_state.dart';
@@ -10,14 +9,14 @@ import 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final SignInWithEmailPassword signInWithEmailPassword;
   final SignUpWithEmailPassword signUpWithEmailPassword;
-  final SignInWithGoogle signInWithGoogle;
+
   final SignOut signOut;
   final GetCurrentUser getCurrentUser;
 
   AuthCubit({
     required this.signInWithEmailPassword,
     required this.signUpWithEmailPassword,
-    required this.signInWithGoogle,
+
     required this.signOut,
     required this.getCurrentUser,
   }) : super(AuthState.initial()) {
@@ -67,17 +66,6 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     final result = await signUpWithEmailPassword(params);
-
-    result.fold(
-      (failure) => emit(AuthState.error(failure.message)),
-      (user) => emit(AuthState.authenticated(user)),
-    );
-  }
-
-  Future<void> loginWithGoogle() async {
-    emit(AuthState.loading());
-
-    final result = await signInWithGoogle();
 
     result.fold(
       (failure) => emit(AuthState.error(failure.message)),

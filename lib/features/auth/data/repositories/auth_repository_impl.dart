@@ -63,22 +63,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signInWithGoogle() async {
-    if (await networkInfo.isConnected) {
-      try {
-        final user = await remoteDataSource.signInWithGoogle();
-        return Right(user);
-      } on AuthException catch (e) {
-        return Left(AuthFailure(message: e.message));
-      } catch (e) {
-        return Left(UnexpectedFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No hay conexión a Internet'));
-    }
-  }
-
-  @override
   Future<Either<Failure, void>> signOut() async {
     try {
       await remoteDataSource.signOut();

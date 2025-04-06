@@ -49,25 +49,4 @@ class UserModel extends User {
       'zone': zone,
     };
   }
-
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'],
-      email: json['email'],
-      name: json['name'],
-      photoUrl: json['photoUrl'],
-      role: _parseUserRole(json['role']),
-      clientType: json['clientType'],
-      address: json['address'],
-      phone: json['phone'],
-      zone: json['zone'],
-    );
-  }
-}
-
-UserRole _parseUserRole(String? roleStr) {
-  if (roleStr == 'seller') {
-    return UserRole.seller;
-  }
-  return UserRole.client; // Default to client
 }

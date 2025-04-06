@@ -128,3 +128,7 @@ Once set up, each push to `main` will:
 
 
 flutter test --coverage && lcov --summary coverage/lcov.info
+
+genhtml coverage/lcov.info -o coverage/html
+
+open coverage/html/index.html

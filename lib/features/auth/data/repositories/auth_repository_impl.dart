@@ -39,17 +39,51 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signUpWithEmailAndPassword(
+  Future<Either<Failure, User>> signUpClient(
     String email,
     String password,
     String name,
+    String clientType,
+    String address,
+    String phone,
   ) async {
     if (await networkInfo.isConnected) {
       try {
-        final user = await remoteDataSource.signUpWithEmailAndPassword(
+        final user = await remoteDataSource.signUpClient(
           email,
           password,
           name,
+          clientType,
+          address,
+          phone,
+        );
+        return Right(user);
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } catch (e) {
+        return Left(UnexpectedFailure(message: e.toString()));
+      }
+    } else {
+      return const Left(NetworkFailure(message: 'No hay conexión a Internet'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> signUpSeller(
+    String email,
+    String password,
+    String name,
+    String zone,
+    String phone,
+  ) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final user = await remoteDataSource.signUpSeller(
+          email,
+          password,
+          name,
+          zone,
+          phone,
         );
         return Right(user);
       } on AuthException catch (e) {

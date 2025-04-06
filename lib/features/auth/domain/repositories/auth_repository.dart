@@ -10,11 +10,23 @@ abstract class AuthRepository {
     String password,
   );
 
-  /// Sign up with email and password
-  Future<Either<Failure, User>> signUpWithEmailAndPassword(
+  /// Sign up with email and password for client
+  Future<Either<Failure, User>> signUpClient(
     String email,
     String password,
     String name,
+    String clientType,
+    String address,
+    String phone,
+  );
+
+  /// Sign up with email and password for seller
+  Future<Either<Failure, User>> signUpSeller(
+    String email,
+    String password,
+    String name,
+    String zone,
+    String phone,
   );
 
   /// Sign out the current user

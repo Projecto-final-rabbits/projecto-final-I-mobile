@@ -15,3 +15,10 @@ class NetworkException implements Exception {
 
   NetworkException({required this.message});
 }
+
+// Auth exceptions
+class AuthException implements Exception {
+  final String message;
+
+  AuthException({required this.message});
+}

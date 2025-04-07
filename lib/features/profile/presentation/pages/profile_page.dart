@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/di/service_locator.dart';
+import '../../../auth/presentation/cubits/auth_cubit.dart';
+import '../../../auth/presentation/cubits/auth_state.dart';
 import 'accessibility_settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -95,17 +100,31 @@ class ProfilePage extends StatelessWidget {
           // Logout button
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[50],
-                foregroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              icon: const Icon(Icons.exit_to_app),
-              label: const Text('Cerrar Sesión'),
-              onPressed: () {
-                // Logout action
+            child: BlocListener<AuthCubit, AuthState>(
+              listener: (context, state) {
+                if (state.status == AuthStatus.unauthenticated) {
+                  context.go('/login');
+                } else if (state.status == AuthStatus.error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.errorMessage),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               },
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[50],
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                icon: const Icon(Icons.exit_to_app),
+                label: const Text('Cerrar Sesión'),
+                onPressed: () {
+                  sl<AuthCubit>().logOut();
+                },
+              ),
             ),
           ),
         ],

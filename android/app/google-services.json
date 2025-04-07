@@ -12,7 +12,20 @@
           "package_name": "com.miso.rabbits.cpp_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "621477859939-iemfr0tmgou2epn5vesce84mr9m1tos9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miso.rabbits.cpp_app",
+            "certificate_hash": "d51cbcc01697b5978091f630a136f7f42268afaf"
+          }
+        },
+        {
+          "client_id": "621477859939-ihris7gd37u3fl7lnum85r97atfepiui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA3qvcVverFk3vK7ONlSYDOPIf-YhPDe7s"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "621477859939-ihris7gd37u3fl7lnum85r97atfepiui.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "621477859939-spca0rveep8hoa5dgfgss396bied40gj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.miso.rabbits.cppApp"
+              }
+            }
+          ]
         }
       }
     }

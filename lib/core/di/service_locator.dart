@@ -1,6 +1,18 @@
+import 'package:cpp_app/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:cpp_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
+import 'package:cpp_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:cpp_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:cpp_app/features/auth/domain/usecases/get_current_user.dart';
+import 'package:cpp_app/features/auth/domain/usecases/sign_in_with_email_password.dart';
+import 'package:cpp_app/features/auth/domain/usecases/sign_out.dart';
+import 'package:cpp_app/features/auth/domain/usecases/sign_up_client.dart';
+import 'package:cpp_app/features/auth/domain/usecases/sign_up_seller.dart';
+import 'package:cpp_app/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:cpp_app/features/orders/data/datasources/order_remote_data_source_impl.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,8 +39,12 @@ Future<void> setupServiceLocator() async {
   // External
   sl.registerLazySingleton(() => InternetConnectionChecker());
   sl.registerLazySingleton(
-    () => Dio()..options.baseUrl = 'http://192.168.68.55:3000',
+    () =>
+        Dio()
+          ..options.baseUrl = 'https://ventas-135751842587.us-central1.run.app',
   );
+  sl.registerLazySingleton(() => FirebaseAuth.instance);
+  sl.registerLazySingleton(() => GoogleSignIn());
 
   // Register SharedPreferences as a singleton
   sl.registerSingletonAsync<SharedPreferences>(() async {
@@ -41,6 +57,42 @@ Future<void> setupServiceLocator() async {
   // Now register ThemeCubit with the available SharedPreferences
   sl.registerLazySingleton<ThemeCubit>(
     () => ThemeCubit(sl<SharedPreferences>()),
+  );
+
+  // Auth Feature
+  // Data sources
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(
+      firebaseAuth: sl<FirebaseAuth>(),
+      googleSignIn: sl<GoogleSignIn>(),
+      httpSeller: sl<Dio>(),
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl<AuthRemoteDataSource>(),
+      networkInfo: sl<NetworkInfo>(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => SignInWithEmailPassword(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => SignUpClient(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => SignUpSeller(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => SignOut(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => GetCurrentUser(sl<AuthRepository>()));
+
+  // Cubits
+  sl.registerLazySingleton(
+    () => AuthCubit(
+      signInWithEmailPassword: sl<SignInWithEmailPassword>(),
+      signUpClient: sl<SignUpClient>(),
+      signUpSeller: sl<SignUpSeller>(),
+      signOut: sl<SignOut>(),
+      getCurrentUser: sl<GetCurrentUser>(),
+    ),
   );
 
   // Orders Feature

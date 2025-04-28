@@ -20,9 +20,10 @@ void main() {
   group('GetCurrentUser', () {
     // Define a test user instance
     const tUser = User(
-      id: '1',
+      id: 1,
       email: 'test@example.com',
       role: UserRole.client,
+      uid: '1',
     );
 
     test('should get current user from the repository', () async {

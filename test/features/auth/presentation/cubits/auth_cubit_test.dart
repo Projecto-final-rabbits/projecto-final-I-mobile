@@ -33,7 +33,12 @@ void main() {
   late MockGetCurrentUser mockGetCurrentUser;
 
   // Test data
-  const tUser = User(id: '1', email: 'test@example.com', role: UserRole.client);
+  const tUser = User(
+    id: 1,
+    email: 'test@example.com',
+    role: UserRole.client,
+    uid: '1',
+  );
   const tEmail = 'test@example.com';
   const tPassword = 'password';
   const tSignInParams = SignInWithEmailPasswordParams(
@@ -56,13 +61,14 @@ void main() {
     phone: tClientPhone,
   );
   final tClientUser = User(
-    id: 'c1',
+    id: 1,
     email: tEmail,
     role: UserRole.client,
     name: tClientName,
     clientType: tClientType,
     address: tClientAddress,
     phone: tClientPhone,
+    uid: '1',
   );
 
   // Seller Sign Up Data
@@ -77,12 +83,13 @@ void main() {
     phone: tSellerPhone,
   );
   final tSellerUser = User(
-    id: 's1',
+    id: 1,
     email: tEmail,
     role: UserRole.seller,
     name: tSellerName,
     zone: tSellerZone,
     phone: tSellerPhone,
+    uid: '1',
   );
 
   setUpAll(() {

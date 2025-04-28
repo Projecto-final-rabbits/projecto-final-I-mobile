@@ -60,7 +60,7 @@ void main() {
   const tEmail = 'test@example.com';
   const tPassword = 'password';
   final tUserModel = UserModel(
-    id: 'test_uid',
+    id: 1,
     email: tEmail,
     role: UserRole.client,
     name: 'Test User',
@@ -153,7 +153,7 @@ void main() {
     const tAddress = '123 Street';
     const tPhone = '1234567890';
     final tClientUserModel = UserModel(
-      id: 'test_uid',
+      id: 1,
       email: tEmail,
       role: UserRole.client,
       name: tName,
@@ -266,7 +266,7 @@ void main() {
     const tZone = 'ZoneA';
     const tPhone = '0987654321';
     final tSellerUserModel = UserModel(
-      id: 'test_uid',
+      id: 1,
       email: tEmail,
       role: UserRole.seller,
       name: tName,

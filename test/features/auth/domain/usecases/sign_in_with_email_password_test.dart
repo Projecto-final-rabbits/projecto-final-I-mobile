@@ -24,9 +24,10 @@ void main() {
     registerFallbackValue(
       const Right<Failure, User>(
         User(
-          id: 'fallback',
+          id: 1,
           email: 'fallback@example.com',
           role: UserRole.client,
+          uid: '1',
         ),
       ),
     );
@@ -34,7 +35,7 @@ void main() {
 
   const tEmail = 'test@example.com';
   const tPassword = 'password123';
-  const tUser = User(id: '1', email: tEmail, role: UserRole.client);
+  const tUser = User(id: 1, email: tEmail, role: UserRole.client, uid: '1');
   const tParams = SignInWithEmailPasswordParams(
     email: tEmail,
     password: tPassword,

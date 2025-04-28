@@ -55,23 +55,23 @@ class MyApp extends StatelessWidget {
     );
 
     // Apply text size factor
-    double textScaleFactor;
-    switch (textSize) {
-      case TextSize.small:
-        textScaleFactor = 0.85;
-        break;
-      case TextSize.large:
-        textScaleFactor = 1.2;
-        break;
-      case TextSize.medium:
-        textScaleFactor = 1.0;
-        break;
-    }
+    // double textScaleFactor;
+    // switch (textSize) {
+    //   case TextSize.small:
+    //     textScaleFactor = 0.85;
+    //     break;
+    //   case TextSize.large:
+    //     textScaleFactor = 1.2;
+    //     break;
+    //   case TextSize.medium:
+    //     textScaleFactor = 1.0;
+    //     break;
+    // }
 
     final defaultTextTheme = baseTheme.textTheme;
 
     return baseTheme.copyWith(
-      textTheme: defaultTextTheme.apply(fontSizeFactor: textScaleFactor),
+      textTheme: defaultTextTheme.apply(fontSizeFactor: 1),
     );
   }
 }

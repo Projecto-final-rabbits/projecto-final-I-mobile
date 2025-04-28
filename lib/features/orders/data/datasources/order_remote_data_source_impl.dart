@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cpp_app/core/error/exceptions.dart';
 import 'package:cpp_app/features/orders/data/datasources/order_remote_data_source.dart';
 import 'package:cpp_app/features/orders/data/models/order_model.dart';
+import 'package:cpp_app/features/orders/data/models/product_model.dart';
 import 'package:dio/dio.dart';
 
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
@@ -32,10 +33,27 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   @override
   Future<OrderModel> getOrderDetail(String orderId) async {
     try {
-      final response = await client.get('/pedidos/$orderId');
+      final response = await client.get('/detalles/$orderId');
 
       if (response.statusCode == 200) {
-        return OrderModel.fromJson(response.data);
+        // Create a ProductModel from the nested product data
+        final productModel = ProductModel.fromJson(response.data['producto']);
+
+        // Create an order model with the product
+        return OrderModel(
+          id: response.data['pedido_id'],
+          clientId: 0, // This information is not available in the response
+          sellerId: 0, // This information is not available in the response
+          shipDate:
+              DateTime.now(), // This information is not available in the response
+          deliveryAddress:
+              '', // This information is not available in the response
+          status: '', // This information is not available in the response
+          total:
+              (response.data['precio_unitario'] * response.data['cantidad'])
+                  .toDouble(),
+          products: [productModel],
+        );
       } else {
         throw ServerException(
           message: 'Failed to load order details: ${response.statusCode}',

@@ -23,9 +23,10 @@ void main() {
     registerFallbackValue(
       const Right<Failure, User>(
         User(
-          id: 'fallback',
+          id: 1,
           email: 'fallback@example.com',
           role: UserRole.seller,
+          uid: '1',
         ),
       ),
     );
@@ -38,9 +39,10 @@ void main() {
   const tZone = 'North Zone';
   const tPhone = '555-5678';
   const tUser = User(
-    id: 'seller1',
+    id: 1,
     email: tEmail,
     role: UserRole.seller,
+    uid: '1',
     name: tName,
     zone: tZone,
     phone: tPhone,

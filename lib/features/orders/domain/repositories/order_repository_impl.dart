@@ -1,4 +1,3 @@
-import 'package:cpp_app/features/orders/data/models/order_item_model.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
 import '../../../../core/error/exceptions.dart';
@@ -56,23 +55,13 @@ class OrderRepositoryImpl implements OrderRepository {
       try {
         final orderModel = OrderModel(
           id: order.id,
-          customerName: order.customerName,
-          customerEmail: order.customerEmail,
-          customerPhone: order.customerPhone,
+          clientId: order.clientId,
+          sellerId: order.sellerId,
+          shipDate: order.shipDate,
+          deliveryAddress: order.deliveryAddress,
           status: order.status,
           total: order.total,
-          items:
-              order.items
-                  .map(
-                    (item) => OrderItemModel(
-                      id: item.id,
-                      name: item.name,
-                      quantity: item.quantity,
-                      price: item.price,
-                    ),
-                  )
-                  .toList(),
-          createdAt: order.createdAt,
+          products: order.products,
         );
 
         final newOrder = await remoteDataSource.createOrder(orderModel);

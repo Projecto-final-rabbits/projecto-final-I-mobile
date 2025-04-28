@@ -20,16 +20,19 @@ class ShellScaffold extends StatelessWidget {
         },
         destinations: const [
           NavigationDestination(
+            key: Key('home_destination'),
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Inicio',
           ),
           NavigationDestination(
+            key: Key('orders_destination'),
             icon: Icon(Icons.shopping_bag_outlined),
             selectedIcon: Icon(Icons.shopping_bag),
             label: 'Órdenes',
           ),
           NavigationDestination(
+            key: Key('profile_destination'),
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Perfil',

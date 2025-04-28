@@ -22,14 +22,14 @@ void main() {
   });
 
   final tOrderModel = OrderModel(
-    id: '1',
-    customerName: 'Test Customer',
-    customerEmail: 'test@example.com',
-    customerPhone: '1234567890',
+    id: 1,
+    clientId: 1,
+    sellerId: 1,
+    shipDate: DateTime.parse('2023-01-01'),
+    deliveryAddress: 'Test Address',
+    products: [],
     status: 'Pending',
     total: 100.0,
-    items: [],
-    createdAt: DateTime.parse('2023-01-01'),
   );
 
   final tOrderModelJson = {

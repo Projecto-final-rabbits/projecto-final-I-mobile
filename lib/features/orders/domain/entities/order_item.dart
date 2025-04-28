@@ -1,18 +1,11 @@
 import 'package:equatable/equatable.dart';
 
 class OrderItem extends Equatable {
-  final String id;
-  final String name;
+  final String productId;
   final int quantity;
-  final double price;
 
-  const OrderItem({
-    required this.id,
-    required this.name,
-    required this.quantity,
-    required this.price,
-  });
+  const OrderItem({required this.productId, required this.quantity});
 
   @override
-  List<Object?> get props => [id, name, quantity, price];
+  List<Object?> get props => [productId, quantity];
 }

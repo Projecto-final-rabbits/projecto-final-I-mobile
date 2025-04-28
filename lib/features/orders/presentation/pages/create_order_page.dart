@@ -1,11 +1,14 @@
-import 'package:cpp_app/features/orders/domain/entities/order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
+import '../../../auth/domain/entities/user.dart';
+import '../../../auth/presentation/widgets/client_selection_bottom_sheet.dart';
+import '../../data/models/order_item_model.dart';
 import '../../domain/entities/order.dart';
 import '../cubits/create_order_cubit.dart';
+import '../widgets/product_selection_bottom_sheet.dart';
 
 class CreateOrderPage extends StatefulWidget {
   const CreateOrderPage({super.key});
@@ -16,78 +19,111 @@ class CreateOrderPage extends StatefulWidget {
 
 class _CreateOrderPageState extends State<CreateOrderPage> {
   final _formKey = GlobalKey<FormState>();
-  final _customerNameController = TextEditingController();
-  final _customerEmailController = TextEditingController();
-  final _customerPhoneController = TextEditingController();
-  final List<OrderItemFormField> _items = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Añadimos un item inicial
-    _addItem();
-  }
+  final _deliveryAddressController = TextEditingController();
+  final List<SelectedProduct> _selectedProducts = [];
+  User? _selectedClient;
 
   @override
   void dispose() {
-    _customerNameController.dispose();
-    _customerEmailController.dispose();
-    _customerPhoneController.dispose();
+    _deliveryAddressController.dispose();
     super.dispose();
   }
 
-  void _addItem() {
+  void _selectClient() {
+    ClientSelectionBottomSheet.show(
+      context,
+      onClientSelected: (client) {
+        setState(() {
+          _selectedClient = client;
+          if (client.address != null) {
+            _deliveryAddressController.text = client.address!;
+          }
+        });
+      },
+    );
+  }
+
+  void _addProduct() {
+    ProductSelectionBottomSheet.show(
+      context,
+      onProductSelected: (selectedProduct) {
+        setState(() {
+          _selectedProducts.add(selectedProduct);
+        });
+      },
+    );
+  }
+
+  void _removeProduct(int index) {
     setState(() {
-      _items.add(
-        OrderItemFormField(
-          nameController: TextEditingController(),
-          quantityController: TextEditingController(),
-          priceController: TextEditingController(),
-          onRemove: () => _removeItem(_items.length - 1),
-        ),
-      );
+      _selectedProducts.removeAt(index);
     });
   }
 
-  void _removeItem(int index) {
-    if (_items.length > 1) {
-      setState(() {
-        _items.removeAt(index);
-      });
-    }
+  void _updateProductQuantity(int index, int quantity) {
+    setState(() {
+      _selectedProducts[index].quantity = quantity;
+    });
   }
 
   double _calculateTotal() {
     double total = 0;
-    for (var item in _items) {
-      final quantity = int.tryParse(item.quantityController.text) ?? 0;
-      final price = double.tryParse(item.priceController.text) ?? 0;
-      total += quantity * price;
+    for (var item in _selectedProducts) {
+      total += item.product.salePrice * item.quantity;
     }
     return total;
   }
 
   void _submitForm(BuildContext context) {
     if (_formKey.currentState?.validate() ?? false) {
-      final itemsList =
-          _items.map((item) {
-            return OrderItem(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              name: item.nameController.text,
-              quantity: int.parse(item.quantityController.text),
-              price: double.parse(item.priceController.text),
-            );
-          }).toList();
+      if (_selectedProducts.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Debe agregar al menos un producto'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (_selectedClient == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Debe seleccionar un cliente'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Parse client ID to int
+      int clientId;
+      try {
+        clientId = _selectedClient!.id!;
+      } catch (e) {
+        clientId = 1; // Default if parsing fails
+      }
+
+      // Convert selected products to OrderItem objects
+      final orderItems =
+          _selectedProducts
+              .map(
+                (sp) => OrderItemModel(
+                  productId: sp.product.id,
+                  quantity: sp.quantity,
+                ),
+              )
+              .toList();
 
       final order = Order(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        customerName: _customerNameController.text,
-        customerEmail: _customerEmailController.text,
-        customerPhone: _customerPhoneController.text,
-        status: 'Pendiente',
+        id: 0, // The server will assign a real ID
+        clientId: clientId,
+        sellerId: 1, // TODO: Get current logged in seller ID
+        shipDate: DateTime.now().add(const Duration(days: 3)),
+        deliveryAddress: _deliveryAddressController.text,
+        status: 'pendiente',
         total: _calculateTotal(),
-        items: itemsList,
-        createdAt: DateTime.now(),
+        products: orderItems,
       );
 
       context.read<CreateOrderCubit>().submitOrder(order);
@@ -137,46 +173,76 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _customerNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Nombre',
-                          border: OutlineInputBorder(),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_selectedClient == null)
+                                const Text(
+                                  'Ningún cliente seleccionado',
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              else
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _selectedClient!.name ?? 'Sin nombre',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(_selectedClient!.email),
+                                    if (_selectedClient!.phone != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text('Tel: ${_selectedClient!.phone}'),
+                                    ],
+                                    if (_selectedClient!.clientType !=
+                                        null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Tipo: ${_selectedClient!.clientType}',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _selectClient,
+                                  child: Text(
+                                    _selectedClient == null
+                                        ? 'Seleccionar Cliente'
+                                        : 'Cambiar Cliente',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese un nombre';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _customerEmailController,
+                        controller: _deliveryAddressController,
                         decoration: const InputDecoration(
-                          labelText: 'Email',
+                          labelText: 'Dirección de entrega',
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese un email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Por favor ingrese un email válido';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _customerPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Teléfono',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese un teléfono';
+                            return 'Por favor ingrese una dirección';
                           }
                           return null;
                         },
@@ -190,14 +256,42 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           ElevatedButton.icon(
-                            onPressed: _addItem,
+                            onPressed: _addProduct,
                             icon: const Icon(Icons.add),
                             label: const Text('Añadir producto'),
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      ..._items,
+                      if (_selectedProducts.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'No hay productos seleccionados. Haga clic en "Añadir producto" para agregar productos a la orden.',
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _selectedProducts.length,
+                          itemBuilder: (context, index) {
+                            final selectedProduct = _selectedProducts[index];
+                            return SelectedProductCard(
+                              selectedProduct: selectedProduct,
+                              onRemove: () => _removeProduct(index),
+                              onQuantityChanged:
+                                  (quantity) =>
+                                      _updateProductQuantity(index, quantity),
+                            );
+                          },
+                        ),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,22 +330,22 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   }
 }
 
-class OrderItemFormField extends StatelessWidget {
-  final TextEditingController nameController;
-  final TextEditingController quantityController;
-  final TextEditingController priceController;
+class SelectedProductCard extends StatelessWidget {
+  final SelectedProduct selectedProduct;
   final VoidCallback onRemove;
+  final Function(int) onQuantityChanged;
 
-  const OrderItemFormField({
+  const SelectedProductCard({
     super.key,
-    required this.nameController,
-    required this.quantityController,
-    required this.priceController,
+    required this.selectedProduct,
     required this.onRemove,
+    required this.onQuantityChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final product = selectedProduct.product;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -261,9 +355,29 @@ class OrderItemFormField extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Producto',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${product.salePrice.toStringAsFixed(2)} (por unidad)',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Total: \$${(product.salePrice * selectedProduct.quantity).toStringAsFixed(2)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
@@ -271,69 +385,27 @@ class OrderItemFormField extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre del producto',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingrese un nombre';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Cantidad',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Ingrese cantidad';
-                      }
-                      if (int.tryParse(value) == null) {
-                        return 'Número válido';
-                      }
-                      if (int.parse(value) <= 0) {
-                        return 'Mayor a 0';
-                      }
-                      return null;
-                    },
-                  ),
+                const Text('Cantidad:'),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed:
+                      selectedProduct.quantity > 1
+                          ? () =>
+                              onQuantityChanged(selectedProduct.quantity - 1)
+                          : null,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextFormField(
-                    controller: priceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Precio unitario',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Ingrese precio';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Número válido';
-                      }
-                      if (double.parse(value) <= 0) {
-                        return 'Mayor a 0';
-                      }
-                      return null;
-                    },
-                  ),
+                Text(
+                  '${selectedProduct.quantity}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed:
+                      () => onQuantityChanged(selectedProduct.quantity + 1),
                 ),
               ],
             ),

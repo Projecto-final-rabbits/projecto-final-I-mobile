@@ -51,7 +51,7 @@ void main() {
     const tEmail = 'test@example.com';
     const tPassword = 'password';
     // Use UserModel for remote data source response, as repository maps it to User entity
-    final tUserModel = UserModel(id: '1', email: tEmail, role: UserRole.client);
+    final tUserModel = UserModel(id: 1, email: tEmail, role: UserRole.client);
     final User tUser = tUserModel; // UserModel extends User
 
     runTestsOnline(() {
@@ -152,7 +152,7 @@ void main() {
     const tAddress = '123 Street';
     const tPhone = '1234567890';
     final tUserModel = UserModel(
-      id: 'c1',
+      id: 1,
       email: tEmail,
       role: UserRole.client,
       name: tName,
@@ -292,7 +292,7 @@ void main() {
     const tZone = 'ZoneA';
     const tPhone = '0987654321';
     final tUserModel = UserModel(
-      id: 's1',
+      id: 1,
       email: tEmail,
       role: UserRole.seller,
       name: tName,
@@ -465,7 +465,7 @@ void main() {
   group('getCurrentUser', () {
     // No online/offline check needed as per implementation
     final tUserModel = UserModel(
-      id: '1',
+      id: 1,
       email: 'current@example.com',
       role: UserRole.client,
     );

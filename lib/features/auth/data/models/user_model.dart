@@ -4,7 +4,8 @@ import '../../domain/entities/user.dart';
 
 class UserModel extends User {
   const UserModel({
-    required super.id,
+    super.uid,
+    super.id,
     required super.email,
     required super.role,
     super.name,
@@ -24,7 +25,8 @@ class UserModel extends User {
     String? zone,
   }) {
     return UserModel(
-      id: firebaseUser.uid,
+      uid: firebaseUser.uid,
+
       email: firebaseUser.email ?? '',
       name: firebaseUser.displayName,
       photoUrl: firebaseUser.photoURL,

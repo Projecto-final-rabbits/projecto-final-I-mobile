@@ -1,7 +1,7 @@
 import 'package:cpp_app/features/orders/domain/entities/order_item.dart';
+import 'package:cpp_app/features/orders/domain/entities/product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/di/service_locator.dart';
 import '../../domain/entities/order.dart';
@@ -43,7 +43,6 @@ class OrderDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
@@ -62,9 +61,9 @@ class OrderDetailView extends StatelessWidget {
                     style: theme.textTheme.titleLarge,
                   ),
                   const Divider(),
-                  _buildInfoRow('ID:', order.id),
-                  _buildInfoRow('Estado:', order.status),
-                  _buildInfoRow('Fecha:', dateFormat.format(order.createdAt)),
+                  _buildInfoRow('ID:', order.id.toString()),
+                  if (order.status.isNotEmpty)
+                    _buildInfoRow('Estado:', order.status),
                   _buildInfoRow(
                     'Total:',
                     '\$${order.total.toStringAsFixed(2)}',
@@ -74,28 +73,9 @@ class OrderDetailView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Información del Cliente',
-                    style: theme.textTheme.titleLarge,
-                  ),
-                  const Divider(),
-                  _buildInfoRow('Nombre:', order.customerName),
-                  _buildInfoRow('Email:', order.customerEmail),
-                  _buildInfoRow('Teléfono:', order.customerPhone),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           Text('Productos', style: theme.textTheme.titleLarge),
           const SizedBox(height: 8),
-          ...order.items.map((item) => _buildOrderItemCard(item, theme)),
+          ...order.products.map((item) => _buildProductCard(item, theme)),
         ],
       ),
     );
@@ -120,17 +100,58 @@ class OrderDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderItemCard(OrderItem item, ThemeData theme) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8.0),
-      child: ListTile(
-        title: Text(item.name),
-        subtitle: Text('Cantidad: ${item.quantity}'),
-        trailing: Text(
-          '\$${(item.price * item.quantity).toStringAsFixed(2)}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+  Widget _buildProductCard(dynamic item, ThemeData theme) {
+    if (item is Product) {
+      return Card(
+        margin: const EdgeInsets.only(bottom: 8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.name,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(item.description),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Categoría: ${item.category}',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  Text(
+                    '\$${item.salePrice.toStringAsFixed(2)}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              if (item.hasPromotion)
+                Chip(
+                  label: const Text('Promoción activa'),
+                  backgroundColor: Colors.green.shade100,
+                  labelStyle: TextStyle(color: Colors.green.shade800),
+                ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    } else if (item is OrderItem) {
+      return Card(
+        margin: const EdgeInsets.only(bottom: 8.0),
+        child: ListTile(
+          title: Text('Producto ID: ${item.productId}'),
+          subtitle: Text('Cantidad: ${item.quantity}'),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

@@ -1,10 +1,8 @@
-import 'package:cpp_app/features/orders/domain/entities/order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
-import '../../domain/entities/order.dart';
 import '../cubits/create_order_cubit.dart';
 
 class CreateOrderPage extends StatefulWidget {
@@ -69,28 +67,28 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
 
   void _submitForm(BuildContext context) {
     if (_formKey.currentState?.validate() ?? false) {
-      final itemsList =
-          _items.map((item) {
-            return OrderItem(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              name: item.nameController.text,
-              quantity: int.parse(item.quantityController.text),
-              price: double.parse(item.priceController.text),
-            );
-          }).toList();
+      // final itemsList =
+      //     _items.map((item) {
+      //       return OrderItem(
+      //         id: DateTime.now().millisecondsSinceEpoch.toString(),
+      //         name: item.nameController.text,
+      //         quantity: int.parse(item.quantityController.text),
+      //         price: double.parse(item.priceController.text),
+      //       );
+      //     }).toList();
 
-      final order = Order(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        customerName: _customerNameController.text,
-        customerEmail: _customerEmailController.text,
-        customerPhone: _customerPhoneController.text,
-        status: 'Pendiente',
-        total: _calculateTotal(),
-        items: itemsList,
-        createdAt: DateTime.now(),
-      );
+      // final order = Order(
+      //   id: 1,
+      //   customerName: _customerNameController.text,
+      //   customerEmail: _customerEmailController.text,
+      //   customerPhone: _customerPhoneController.text,
+      //   status: 'Pendiente',
+      //   total: _calculateTotal(),
+      //   items: itemsList,
+      //   createdAt: DateTime.now(),
+      // );
 
-      context.read<CreateOrderCubit>().submitOrder(order);
+      // context.read<CreateOrderCubit>().submitOrder(order);
     }
   }
 

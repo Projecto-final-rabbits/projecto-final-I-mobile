@@ -62,9 +62,8 @@ class OrderDetailView extends StatelessWidget {
                     style: theme.textTheme.titleLarge,
                   ),
                   const Divider(),
-                  _buildInfoRow('ID:', order.id),
+                  _buildInfoRow('ID:', order.id.toString()),
                   _buildInfoRow('Estado:', order.status),
-                  _buildInfoRow('Fecha:', dateFormat.format(order.createdAt)),
                   _buildInfoRow(
                     'Total:',
                     '\$${order.total.toStringAsFixed(2)}',
@@ -85,9 +84,9 @@ class OrderDetailView extends StatelessWidget {
                     style: theme.textTheme.titleLarge,
                   ),
                   const Divider(),
-                  _buildInfoRow('Nombre:', order.customerName),
-                  _buildInfoRow('Email:', order.customerEmail),
-                  _buildInfoRow('Teléfono:', order.customerPhone),
+                  _buildInfoRow('Nombre:', order.clientId.toString()),
+                  _buildInfoRow('Email:', order.sellerId.toString()),
+                  _buildInfoRow('Teléfono:', order.deliveryAddress),
                 ],
               ),
             ),
@@ -95,7 +94,7 @@ class OrderDetailView extends StatelessWidget {
           const SizedBox(height: 16),
           Text('Productos', style: theme.textTheme.titleLarge),
           const SizedBox(height: 8),
-          ...order.items.map((item) => _buildOrderItemCard(item, theme)),
+          // ...order.products.map((item) => _buildOrderItemCard(item, theme)),
         ],
       ),
     );
@@ -124,12 +123,12 @@ class OrderDetailView extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8.0),
       child: ListTile(
-        title: Text(item.name),
+        title: Text(item.productId),
         subtitle: Text('Cantidad: ${item.quantity}'),
-        trailing: Text(
-          '\$${(item.price * item.quantity).toStringAsFixed(2)}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        // trailing: Text(
+        //   '\$${(item.price * item.quantity).toStringAsFixed(2)}',
+        //   style: const TextStyle(fontWeight: FontWeight.bold),
+        // ),
       ),
     );
   }

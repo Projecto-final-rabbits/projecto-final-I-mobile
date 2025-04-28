@@ -13,11 +13,11 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   @override
   Future<List<OrderModel>> getOrders() async {
     try {
-      final response = await client.get('/orders');
+      final response = await client.get('/pedidos');
 
       if (response.statusCode == 200) {
         return (response.data as List)
-            .map((json) => OrderModel.fromJson(json))
+            .map((json) => OrderModel.fromJson(json, withProducts: false))
             .toList();
       } else {
         throw ServerException(
@@ -32,7 +32,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   @override
   Future<OrderModel> getOrderDetail(String orderId) async {
     try {
-      final response = await client.get('/orders/$orderId');
+      final response = await client.get('/pedidos/$orderId');
 
       if (response.statusCode == 200) {
         return OrderModel.fromJson(response.data);
@@ -52,17 +52,23 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<OrderModel> createOrder(OrderModel order) async {
     try {
       final response = await client.post(
-        '/orders',
+        '/pedidos',
         data: json.encode(order.toJson()),
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return OrderModel.fromJson(response.data);
       } else {
         throw ServerException(
           message: 'Failed to create order: ${response.statusCode}',
         );
       }
+    } on DioException catch (e) {
+      throw ServerException(
+        message:
+            'Failed to create order: ${e.response?.statusMessage ?? e.message}',
+      );
     } catch (e) {
       throw ServerException(message: 'Failed to create order: ${e.toString()}');
     }

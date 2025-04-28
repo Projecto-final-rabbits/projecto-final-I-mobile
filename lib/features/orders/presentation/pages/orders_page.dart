@@ -76,9 +76,9 @@ class OrderListItem extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Cliente: ${order.customerName}'),
+            Text('Cliente: ${order.clientId}'),
             Text('Estado: ${order.status}'),
-            Text('Fecha: ${dateFormat.format(order.createdAt)}'),
+            Text('Fecha: ${dateFormat.format(order.shipDate)}'),
           ],
         ),
         trailing: Text(
@@ -88,7 +88,7 @@ class OrderListItem extends StatelessWidget {
         onTap:
             () => context.pushNamed(
               'order-details',
-              pathParameters: {'orderId': order.id},
+              pathParameters: {'orderId': order.id.toString()},
             ),
       ),
     );

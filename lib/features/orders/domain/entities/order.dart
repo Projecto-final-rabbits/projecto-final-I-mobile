@@ -1,36 +1,36 @@
-import 'package:cpp_app/features/orders/domain/entities/order_item.dart';
+import 'package:cpp_app/features/orders/domain/entities/product.dart';
 import 'package:equatable/equatable.dart';
 
 class Order extends Equatable {
-  final String id;
-  final String customerName;
-  final String customerEmail;
-  final String customerPhone;
+  final int id;
+  final int clientId;
+  final int sellerId;
+  final DateTime shipDate;
+  final String deliveryAddress;
+  final List<Product> products;
   final String status;
   final double total;
-  final List<OrderItem> items;
-  final DateTime createdAt;
 
   const Order({
     required this.id,
-    required this.customerName,
-    required this.customerEmail,
-    required this.customerPhone,
+    required this.clientId,
+    required this.sellerId,
+    required this.shipDate,
+    required this.deliveryAddress,
+    required this.products,
     required this.status,
     required this.total,
-    required this.items,
-    required this.createdAt,
   });
 
   @override
   List<Object?> get props => [
     id,
-    customerName,
-    customerEmail,
-    customerPhone,
+    clientId,
+    sellerId,
+    shipDate,
+    deliveryAddress,
+    products,
     status,
     total,
-    items,
-    createdAt,
   ];
 }

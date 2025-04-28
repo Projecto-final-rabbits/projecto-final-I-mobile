@@ -3,7 +3,8 @@ import 'package:equatable/equatable.dart';
 enum UserRole { client, seller }
 
 class User extends Equatable {
-  final String id;
+  final String? uid;
+  final int? id;
   final String email;
   final String? name;
   final String? photoUrl;
@@ -18,6 +19,7 @@ class User extends Equatable {
   final String? zone;
 
   const User({
+    required this.uid,
     required this.id,
     required this.email,
     required this.role,
@@ -31,6 +33,7 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [
+    uid,
     id,
     email,
     name,

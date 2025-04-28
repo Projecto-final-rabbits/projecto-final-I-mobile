@@ -2,6 +2,7 @@ import 'package:cpp_app/features/auth/domain/entities/user.dart';
 
 class ClientModel extends User {
   const ClientModel({
+    required super.uid,
     required super.id,
     required super.name,
     required super.email,
@@ -14,6 +15,7 @@ class ClientModel extends User {
   factory ClientModel.fromJson(Map<String, dynamic> json) {
     return ClientModel(
       id: json['id'],
+      uid: json['uid'],
       name: json['nombre'],
       email: json['email'],
       phone: json['telefono'],

@@ -1,13 +1,18 @@
 import 'package:cpp_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:cpp_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
+import 'package:cpp_app/features/auth/data/datasources/client_remote_data_source.dart';
 import 'package:cpp_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:cpp_app/features/auth/data/repositories/client_repository_impl.dart';
 import 'package:cpp_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:cpp_app/features/auth/domain/repositories/client_repository.dart';
+import 'package:cpp_app/features/auth/domain/usecases/get_clients.dart';
 import 'package:cpp_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_in_with_email_password.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_out.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_up_client.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_up_seller.dart';
 import 'package:cpp_app/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:cpp_app/features/auth/presentation/cubits/clients_cubit.dart';
 import 'package:cpp_app/features/orders/data/datasources/order_remote_data_source_impl.dart';
 import 'package:cpp_app/features/orders/data/datasources/product_remote_data_source.dart';
 import 'package:cpp_app/features/orders/data/datasources/product_remote_data_source_impl.dart';
@@ -75,10 +80,21 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
+  sl.registerLazySingleton<ClientRemoteDataSource>(
+    () => ClientRemoteDataSourceImpl(client: sl<Dio>()),
+  );
+
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       remoteDataSource: sl<AuthRemoteDataSource>(),
+      networkInfo: sl<NetworkInfo>(),
+    ),
+  );
+
+  sl.registerLazySingleton<ClientRepository>(
+    () => ClientRepositoryImpl(
+      remoteDataSource: sl<ClientRemoteDataSource>(),
       networkInfo: sl<NetworkInfo>(),
     ),
   );
@@ -89,6 +105,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton(() => SignUpSeller(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SignOut(sl<AuthRepository>()));
   sl.registerLazySingleton(() => GetCurrentUser(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => GetClients(sl<ClientRepository>()));
 
   // Cubits
   sl.registerLazySingleton(
@@ -100,6 +117,8 @@ Future<void> setupServiceLocator() async {
       getCurrentUser: sl<GetCurrentUser>(),
     ),
   );
+
+  sl.registerFactory(() => ClientsCubit(getClients: sl<GetClients>()));
 
   // Orders Feature
   // Data sources

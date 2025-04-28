@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
-import '../../domain/entities/order_item.dart';
+import '../../../auth/domain/entities/user.dart';
+import '../../../auth/presentation/widgets/client_selection_bottom_sheet.dart';
+import '../../data/models/order_item_model.dart';
+import '../../domain/entities/order.dart';
 import '../cubits/create_order_cubit.dart';
 import '../widgets/product_selection_bottom_sheet.dart';
 
@@ -16,19 +19,28 @@ class CreateOrderPage extends StatefulWidget {
 
 class _CreateOrderPageState extends State<CreateOrderPage> {
   final _formKey = GlobalKey<FormState>();
-  final _customerNameController = TextEditingController();
-  final _customerEmailController = TextEditingController();
-  final _customerPhoneController = TextEditingController();
   final _deliveryAddressController = TextEditingController();
   final List<SelectedProduct> _selectedProducts = [];
+  User? _selectedClient;
 
   @override
   void dispose() {
-    _customerNameController.dispose();
-    _customerEmailController.dispose();
-    _customerPhoneController.dispose();
     _deliveryAddressController.dispose();
     super.dispose();
+  }
+
+  void _selectClient() {
+    ClientSelectionBottomSheet.show(
+      context,
+      onClientSelected: (client) {
+        setState(() {
+          _selectedClient = client;
+          if (client.address != null) {
+            _deliveryAddressController.text = client.address!;
+          }
+        });
+      },
+    );
   }
 
   void _addProduct() {
@@ -74,15 +86,47 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
         return;
       }
 
-      final orderItemsList =
+      if (_selectedClient == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Debe seleccionar un cliente'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Parse client ID to int
+      int clientId;
+      try {
+        clientId = _selectedClient!.id!;
+      } catch (e) {
+        clientId = 1; // Default if parsing fails
+      }
+
+      // Convert selected products to OrderItem objects
+      final orderItems =
           _selectedProducts
               .map(
-                (item) => OrderItem(
-                  productId: item.product.id,
-                  quantity: item.quantity,
+                (sp) => OrderItemModel(
+                  productId: sp.product.id,
+                  quantity: sp.quantity,
                 ),
               )
               .toList();
+
+      final order = Order(
+        id: 0, // The server will assign a real ID
+        clientId: clientId,
+        sellerId: 1, // TODO: Get current logged in seller ID
+        shipDate: DateTime.now().add(const Duration(days: 3)),
+        deliveryAddress: _deliveryAddressController.text,
+        status: 'pendiente',
+        total: _calculateTotal(),
+        products: orderItems,
+      );
+
+      context.read<CreateOrderCubit>().submitOrder(order);
     }
   }
 
@@ -129,49 +173,65 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _customerNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Nombre',
-                          border: OutlineInputBorder(),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_selectedClient == null)
+                                const Text(
+                                  'Ningún cliente seleccionado',
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              else
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _selectedClient!.name ?? 'Sin nombre',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(_selectedClient!.email),
+                                    if (_selectedClient!.phone != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text('Tel: ${_selectedClient!.phone}'),
+                                    ],
+                                    if (_selectedClient!.clientType !=
+                                        null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Tipo: ${_selectedClient!.clientType}',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _selectClient,
+                                  child: Text(
+                                    _selectedClient == null
+                                        ? 'Seleccionar Cliente'
+                                        : 'Cambiar Cliente',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese un nombre';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _customerEmailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese un email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Por favor ingrese un email válido';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _customerPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Teléfono',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese un teléfono';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 16),
                       TextFormField(

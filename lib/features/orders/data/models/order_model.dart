@@ -1,8 +1,11 @@
-import 'package:cpp_app/features/orders/data/models/order_item_model.dart';
 import 'package:cpp_app/features/orders/data/models/product_model.dart';
+import 'package:cpp_app/features/orders/domain/entities/order_item.dart';
+import 'package:cpp_app/features/orders/domain/entities/product.dart';
 
 import '../../domain/entities/order.dart';
 
+/// OrderModel represents an order in the system and handles conversion between
+/// the domain entity and the API format.
 class OrderModel extends Order {
   const OrderModel({
     required super.id,
@@ -36,19 +39,36 @@ class OrderModel extends Order {
     );
   }
 
+  /// Converts the order to the expected API format
+  /// The productos field should be in the format:
+  /// [{'producto_id': '<uuid>', 'cantidad': <int>}, ...]
   Map<String, dynamic> toJson() {
+    final List<Map<String, dynamic>> productsList = [];
+
+    // Convert products to API format
+    for (var item in products) {
+      if (item is Product) {
+        productsList.add({
+          'producto_id': item.id,
+          'cantidad': 1, // Default quantity
+        });
+      } else if (item is OrderItem) {
+        productsList.add({
+          'producto_id': item.productId,
+          'cantidad': item.quantity,
+        });
+      }
+    }
+
     return {
-      'id': id,
       'cliente_id': clientId,
       'vendedor_id': sellerId,
-      'fecha_envio': shipDate.toIso8601String(),
+      'fecha_envio':
+          shipDate.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
       'direccion_entrega': deliveryAddress,
       'estado': status,
       'total': total,
-      'productos':
-          (products as List<OrderItemModel>)
-              .map((item) => item.toJson())
-              .toList(),
+      'productos': productsList,
     };
   }
 }

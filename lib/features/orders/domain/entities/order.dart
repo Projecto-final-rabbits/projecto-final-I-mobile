@@ -1,4 +1,3 @@
-import 'package:cpp_app/features/orders/domain/entities/product.dart';
 import 'package:equatable/equatable.dart';
 
 class Order extends Equatable {
@@ -7,7 +6,7 @@ class Order extends Equatable {
   final int sellerId;
   final DateTime shipDate;
   final String deliveryAddress;
-  final List<Product> products;
+  final List<dynamic> products;
   final String status;
   final double total;
 

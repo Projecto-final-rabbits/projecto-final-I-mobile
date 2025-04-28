@@ -52,13 +52,13 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<OrderModel> createOrder(OrderModel order) async {
     try {
       final response = await client.post(
-        '/pedidos',
+        '/pedidos/',
         data: json.encode(order.toJson()),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return OrderModel.fromJson(response.data);
+        return OrderModel.fromJson(response.data, withProducts: false);
       } else {
         throw ServerException(
           message: 'Failed to create order: ${response.statusCode}',

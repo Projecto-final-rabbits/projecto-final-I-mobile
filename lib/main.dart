@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,11 +11,19 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await di.setupServiceLocator();
-  runApp(const MyApp());
+  runApp(
+    EasyLocalization(
+      supportedLocales: [Locale('es'), Locale('en')],
+      path: 'assets/translations',
+      fallbackLocale: Locale('es'),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -34,44 +43,103 @@ class MyApp extends StatelessWidget {
         builder: (context, state) {
           return MaterialApp.router(
             title: 'CPP App',
-            theme: _getThemeData(Brightness.light, state.textSize),
-            darkTheme: _getThemeData(Brightness.dark, state.textSize),
             themeMode: state.themeMode,
+            theme: _buildLightTheme(state.textSize),
+            darkTheme: _buildDarkTheme(state.textSize),
             debugShowCheckedModeBanner: false,
             routerConfig: router,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
           );
         },
       ),
     );
   }
 
-  ThemeData _getThemeData(Brightness brightness, TextSize textSize) {
-    final baseTheme = ThemeData(
+  ThemeData _buildLightTheme(TextSize textSize) {
+    return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: Colors.blue,
-        brightness: brightness,
+        brightness: Brightness.light,
       ),
+      textTheme: _getAdjustedTextTheme(ThemeData.light().textTheme, textSize),
     );
+  }
 
-    // Apply text size factor
-    // double textScaleFactor;
-    // switch (textSize) {
-    //   case TextSize.small:
-    //     textScaleFactor = 0.85;
-    //     break;
-    //   case TextSize.large:
-    //     textScaleFactor = 1.2;
-    //     break;
-    //   case TextSize.medium:
-    //     textScaleFactor = 1.0;
-    //     break;
-    // }
+  ThemeData _buildDarkTheme(TextSize textSize) {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blue,
+        brightness: Brightness.dark,
+      ),
+      textTheme: _getAdjustedTextTheme(ThemeData.dark().textTheme, textSize),
+    );
+  }
 
-    final defaultTextTheme = baseTheme.textTheme;
+  TextTheme _getAdjustedTextTheme(TextTheme baseTheme, TextSize textSize) {
+    final double scaleFactor = _getTextScaleFactor(textSize);
 
     return baseTheme.copyWith(
-      textTheme: defaultTextTheme.apply(fontSizeFactor: 1),
+      displayLarge: baseTheme.displayLarge?.copyWith(
+        fontSize: (baseTheme.displayLarge?.fontSize ?? 96) * scaleFactor,
+      ),
+      displayMedium: baseTheme.displayMedium?.copyWith(
+        fontSize: (baseTheme.displayMedium?.fontSize ?? 60) * scaleFactor,
+      ),
+      displaySmall: baseTheme.displaySmall?.copyWith(
+        fontSize: (baseTheme.displaySmall?.fontSize ?? 48) * scaleFactor,
+      ),
+      headlineLarge: baseTheme.headlineLarge?.copyWith(
+        fontSize: (baseTheme.headlineLarge?.fontSize ?? 40) * scaleFactor,
+      ),
+      headlineMedium: baseTheme.headlineMedium?.copyWith(
+        fontSize: (baseTheme.headlineMedium?.fontSize ?? 34) * scaleFactor,
+      ),
+      headlineSmall: baseTheme.headlineSmall?.copyWith(
+        fontSize: (baseTheme.headlineSmall?.fontSize ?? 24) * scaleFactor,
+      ),
+      titleLarge: baseTheme.titleLarge?.copyWith(
+        fontSize: (baseTheme.titleLarge?.fontSize ?? 20) * scaleFactor,
+      ),
+      titleMedium: baseTheme.titleMedium?.copyWith(
+        fontSize: (baseTheme.titleMedium?.fontSize ?? 16) * scaleFactor,
+      ),
+      titleSmall: baseTheme.titleSmall?.copyWith(
+        fontSize: (baseTheme.titleSmall?.fontSize ?? 14) * scaleFactor,
+      ),
+      bodyLarge: baseTheme.bodyLarge?.copyWith(
+        fontSize: (baseTheme.bodyLarge?.fontSize ?? 16) * scaleFactor,
+      ),
+      bodyMedium: baseTheme.bodyMedium?.copyWith(
+        fontSize: (baseTheme.bodyMedium?.fontSize ?? 14) * scaleFactor,
+      ),
+      bodySmall: baseTheme.bodySmall?.copyWith(
+        fontSize: (baseTheme.bodySmall?.fontSize ?? 12) * scaleFactor,
+      ),
+      labelLarge: baseTheme.labelLarge?.copyWith(
+        fontSize: (baseTheme.labelLarge?.fontSize ?? 14) * scaleFactor,
+      ),
+      labelMedium: baseTheme.labelMedium?.copyWith(
+        fontSize: (baseTheme.labelMedium?.fontSize ?? 12) * scaleFactor,
+      ),
+      labelSmall: baseTheme.labelSmall?.copyWith(
+        fontSize: (baseTheme.labelSmall?.fontSize ?? 10) * scaleFactor,
+      ),
     );
+  }
+
+  double _getTextScaleFactor(TextSize textSize) {
+    switch (textSize) {
+      case TextSize.small:
+        return 0.85;
+      case TextSize.large:
+        return 1.2;
+      case TextSize.medium:
+      default:
+        return 1.0;
+    }
   }
 }

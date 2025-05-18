@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class GoogleSignInButton extends StatelessWidget {
@@ -23,7 +24,7 @@ class GoogleSignInButton extends StatelessWidget {
             width: 24,
           ),
           const SizedBox(width: 12),
-          const Text('Google'),
+          Text('google'.tr()),
         ],
       ),
     );

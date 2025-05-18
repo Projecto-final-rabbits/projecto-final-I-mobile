@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -11,11 +12,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final firebase_auth.FirebaseAuth firebaseAuth;
   final GoogleSignIn googleSignIn;
   final Dio httpSeller;
+  final FirebaseFirestore firestore;
 
   AuthRemoteDataSourceImpl({
     required this.firebaseAuth,
     required this.googleSignIn,
     required this.httpSeller,
+    required this.firestore,
   });
 
   @override
@@ -34,7 +37,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw AuthException(message: 'No se pudo iniciar sesión');
       }
 
-      return UserModel.fromFirebaseUser(userCredential.user!);
+      // Retrieve user role from Firestore
+      final userData = await _getUserData(user.uid);
+      final userRole = _getUserRole(userData);
+
+      return UserModel.fromFirebaseUser(
+        userCredential.user!,
+        role: userRole,
+        clientType: userData?['clientType'],
+        address: userData?['address'],
+        phone: userData?['phone'],
+        zone: userData?['zone'],
+      );
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw AuthException(message: _getErrorMessage(e.code));
     } catch (e) {
@@ -63,6 +77,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       // Update the user's display name
       await userCredential.user!.updateDisplayName(name);
+
+      // Store role and additional data in Firestore
+      await _storeUserData(userCredential.user!.uid, {
+        'role': UserRole.client.name.toString(),
+        'clientType': clientType,
+        'address': address,
+        'phone': phone,
+        'name': name,
+        'email': email,
+      });
 
       // Create user model
       final userModel = UserModel.fromFirebaseUser(
@@ -112,6 +136,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       await userCredential.user!.updateDisplayName(name);
 
+      // Store role and additional data in Firestore
+      await _storeUserData(userCredential.user!.uid, {
+        'role': UserRole.seller.name.toString(),
+        'zone': zone,
+        'phone': phone,
+        'name': name,
+        'email': email,
+      });
+
       final userModel = UserModel.fromFirebaseUser(
         userCredential.user!,
         role: UserRole.seller,
@@ -149,9 +182,53 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return null;
       }
 
-      return UserModel.fromFirebaseUser(user);
+      // Retrieve user role from Firestore
+      final userData = await _getUserData(user.uid);
+      final userRole = _getUserRole(userData);
+
+      return UserModel.fromFirebaseUser(
+        user,
+        role: userRole,
+        clientType: userData?['clientType'],
+        address: userData?['address'],
+        phone: userData?['phone'],
+        zone: userData?['zone'],
+      );
     } catch (e) {
       throw AuthException(message: 'Error al obtener el usuario actual');
+    }
+  }
+
+  // Helper method to store user data in Firestore
+  Future<void> _storeUserData(String uid, Map<String, dynamic> data) async {
+    try {
+      await firestore.collection('users').doc(uid).set(data);
+    } catch (e) {
+      throw AuthException(message: 'Error al guardar datos de usuario');
+    }
+  }
+
+  // Helper method to get user data from Firestore
+  Future<Map<String, dynamic>?> _getUserData(String uid) async {
+    try {
+      final docSnapshot = await firestore.collection('users').doc(uid).get();
+      return docSnapshot.data();
+    } catch (e) {
+      throw AuthException(message: 'Error al obtener datos de usuario');
+    }
+  }
+
+  // Helper method to parse user role from Firestore data
+  UserRole _getUserRole(Map<String, dynamic>? userData) {
+    if (userData == null || userData['role'] == null) {
+      return UserRole.client; // Default role
+    }
+
+    final roleString = userData['role'].toString();
+    if (roleString.contains('seller')) {
+      return UserRole.seller;
+    } else {
+      return UserRole.client;
     }
   }
 

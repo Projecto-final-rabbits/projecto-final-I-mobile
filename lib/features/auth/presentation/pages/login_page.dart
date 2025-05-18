@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,25 +64,25 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           const SizedBox(height: 36),
                           Text(
-                            'Iniciar Sesión',
+                            'login.title'.tr(),
                             style: Theme.of(context).textTheme.headlineMedium,
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 40),
                           AuthInputField(
                             controller: _emailController,
-                            label: 'Correo Electrónico',
-                            hintText: 'ejemplo@email.com',
+                            label: 'login.email'.tr(),
+                            hintText: 'login.emailHint'.tr(),
                             keyboardType: TextInputType.emailAddress,
                             prefixIcon: Icons.email_outlined,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Por favor ingresa tu correo electrónico';
+                                return 'login.emailRequired'.tr();
                               }
                               if (!RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$',
                               ).hasMatch(value)) {
-                                return 'Ingresa un correo electrónico válido';
+                                return 'login.emailError'.tr();
                               }
                               return null;
                             },
@@ -89,16 +90,16 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 20),
                           AuthInputField(
                             controller: _passwordController,
-                            label: 'Contraseña',
-                            hintText: '********',
+                            label: 'login.password'.tr(),
+                            hintText: 'login.password'.tr(),
                             isPassword: true,
                             prefixIcon: Icons.lock_outline,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Por favor ingresa tu contraseña';
+                                return 'login.passwordRequired'.tr();
                               }
                               if (value.length < 6) {
-                                return 'La contraseña debe tener al menos 6 caracteres';
+                                return 'login.passwordError'.tr();
                               }
                               return null;
                             },
@@ -110,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: () {
                                 // TODO: Implement forgot password
                               },
-                              child: const Text('¿Olvidaste tu contraseña?'),
+                              child: Text('login.forgotPassword'.tr()),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -134,15 +135,13 @@ class _LoginPageState extends State<LoginPage> {
                             child:
                                 isLoading
                                     ? const CircularProgressIndicator()
-                                    : const Text('Iniciar Sesión'),
+                                    : Text('login.login'.tr()),
                           ),
-
                           const SizedBox(height: 20),
-
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('¿No tienes una cuenta?'),
+                              Text('${'login.signup'.tr().split(' ')[0]} '),
                               TextButton(
                                 onPressed:
                                     isLoading
@@ -150,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                                         : () {
                                           context.push('/register');
                                         },
-                                child: const Text('Regístrate'),
+                                child: Text('login.signupButton'.tr()),
                               ),
                             ],
                           ),

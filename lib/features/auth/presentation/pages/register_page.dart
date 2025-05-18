@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -62,12 +63,18 @@ class _RegisterPageState extends State<RegisterPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registro'),
+        title: Text('register.title'.tr()),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.person), text: 'Cliente'),
-            Tab(icon: Icon(Icons.business), text: 'Vendedor'),
+          tabs: [
+            Tab(
+              icon: const Icon(Icons.person),
+              text: 'register.clientTab'.tr(),
+            ),
+            Tab(
+              icon: const Icon(Icons.business),
+              text: 'register.sellerTab'.tr(),
+            ),
           ],
         ),
       ),
@@ -116,19 +123,19 @@ class _RegisterPageState extends State<RegisterPage>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Registro de Cliente',
+                  'register.clientTitle'.tr(),
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
                 AuthInputField(
                   controller: _nameController,
-                  label: 'Nombre',
-                  hintText: 'Tu nombre completo',
+                  label: 'register.name'.tr(),
+                  hintText: 'register.nameHint'.tr(),
                   prefixIcon: Icons.person_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu nombre';
+                      return 'register.nameRequired'.tr();
                     }
                     return null;
                   },
@@ -136,31 +143,27 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _emailController,
-                  label: 'Correo Electrónico',
-                  hintText: 'ejemplo@email.com',
+                  label: 'login.email'.tr(),
+                  hintText: 'login.emailHint'.tr(),
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu correo electrónico';
+                      return 'login.emailRequired'.tr();
                     }
-                    if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(value)) {
-                      return 'Ingresa un correo electrónico válido';
-                    }
+
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _clientTypeController,
-                  label: 'Tipo de Cliente',
-                  hintText: 'Ejemplo: Minorista, Mayorista',
+                  label: 'register.clientType'.tr(),
+                  hintText: 'register.clientTypeHint'.tr(),
                   prefixIcon: Icons.category_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa el tipo de cliente';
+                      return 'register.clientTypeRequired'.tr();
                     }
                     return null;
                   },
@@ -168,12 +171,12 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _addressController,
-                  label: 'Dirección',
-                  hintText: 'Tu dirección completa',
+                  label: 'register.address'.tr(),
+                  hintText: 'register.addressHint'.tr(),
                   prefixIcon: Icons.location_on_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu dirección';
+                      return 'register.addressRequired'.tr();
                     }
                     return null;
                   },
@@ -181,13 +184,13 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _clientPhoneController,
-                  label: 'Teléfono',
-                  hintText: 'Tu número de teléfono',
+                  label: 'register.phone'.tr(),
+                  hintText: 'register.phoneHint'.tr(),
                   keyboardType: TextInputType.phone,
                   prefixIcon: Icons.phone_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu teléfono';
+                      return 'register.phoneRequired'.tr();
                     }
                     return null;
                   },
@@ -195,16 +198,16 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _passwordController,
-                  label: 'Contraseña',
-                  hintText: '********',
+                  label: 'login.password'.tr(),
+                  hintText: 'login.password'.tr(),
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu contraseña';
+                      return 'login.passwordRequired'.tr();
                     }
                     if (value.length < 6) {
-                      return 'La contraseña debe tener al menos 6 caracteres';
+                      return 'login.passwordError'.tr();
                     }
                     return null;
                   },
@@ -212,16 +215,16 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _confirmPasswordController,
-                  label: 'Confirmar Contraseña',
-                  hintText: '********',
+                  label: 'register.confirmPassword'.tr(),
+                  hintText: 'register.confirmPassword'.tr(),
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor confirma tu contraseña';
+                      return 'register.confirmPasswordRequired'.tr();
                     }
                     if (value != _passwordController.text) {
-                      return 'Las contraseñas no coinciden';
+                      return 'register.passwordsDoNotMatch'.tr();
                     }
                     return null;
                   },
@@ -249,7 +252,7 @@ class _RegisterPageState extends State<RegisterPage>
                   child:
                       isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Registrarse como Cliente'),
+                          : Text('register.registerButton'.tr()),
                 ),
                 _buildLoginLink(isLoading),
               ],
@@ -272,19 +275,19 @@ class _RegisterPageState extends State<RegisterPage>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Registro de Vendedor',
+                  'register.sellerTitle'.tr(),
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
                 AuthInputField(
                   controller: _nameController,
-                  label: 'Nombre',
-                  hintText: 'Tu nombre completo',
+                  label: 'register.name'.tr(),
+                  hintText: 'register.nameHint'.tr(),
                   prefixIcon: Icons.person_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu nombre';
+                      return 'register.nameRequired'.tr();
                     }
                     return null;
                   },
@@ -292,18 +295,18 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _emailController,
-                  label: 'Correo Electrónico',
-                  hintText: 'ejemplo@email.com',
+                  label: 'login.email'.tr(),
+                  hintText: 'login.emailHint'.tr(),
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu correo electrónico';
+                      return 'login.emailRequired'.tr();
                     }
                     if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$',
                     ).hasMatch(value)) {
-                      return 'Ingresa un correo electrónico válido';
+                      return 'login.emailError'.tr();
                     }
                     return null;
                   },
@@ -311,12 +314,12 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _zoneController,
-                  label: 'Zona',
-                  hintText: 'Zona de venta',
+                  label: 'register.zone'.tr(),
+                  hintText: 'register.zoneHint'.tr(),
                   prefixIcon: Icons.map_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu zona';
+                      return 'register.zoneRequired'.tr();
                     }
                     return null;
                   },
@@ -324,13 +327,13 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _sellerPhoneController,
-                  label: 'Teléfono',
-                  hintText: 'Tu número de teléfono',
+                  label: 'register.phone'.tr(),
+                  hintText: 'register.phoneHint'.tr(),
                   keyboardType: TextInputType.phone,
                   prefixIcon: Icons.phone_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu teléfono';
+                      return 'register.phoneRequired'.tr();
                     }
                     return null;
                   },
@@ -338,16 +341,16 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _passwordController,
-                  label: 'Contraseña',
-                  hintText: '********',
+                  label: 'login.password'.tr(),
+                  hintText: 'login.password'.tr(),
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu contraseña';
+                      return 'login.passwordRequired'.tr();
                     }
                     if (value.length < 6) {
-                      return 'La contraseña debe tener al menos 6 caracteres';
+                      return 'login.passwordError'.tr();
                     }
                     return null;
                   },
@@ -355,16 +358,16 @@ class _RegisterPageState extends State<RegisterPage>
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _confirmPasswordController,
-                  label: 'Confirmar Contraseña',
-                  hintText: '********',
+                  label: 'register.confirmPassword'.tr(),
+                  hintText: 'register.confirmPassword'.tr(),
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor confirma tu contraseña';
+                      return 'register.confirmPasswordRequired'.tr();
                     }
                     if (value != _passwordController.text) {
-                      return 'Las contraseñas no coinciden';
+                      return 'register.passwordsDoNotMatch'.tr();
                     }
                     return null;
                   },
@@ -391,7 +394,7 @@ class _RegisterPageState extends State<RegisterPage>
                   child:
                       isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Registrarse como Vendedor'),
+                          : Text('register.registerButton'.tr()),
                 ),
                 _buildLoginLink(isLoading),
               ],
@@ -408,7 +411,7 @@ class _RegisterPageState extends State<RegisterPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('¿Ya tienes una cuenta?'),
+          Text('register.alreadyHaveAccount'.tr()),
           TextButton(
             onPressed:
                 isLoading
@@ -416,7 +419,7 @@ class _RegisterPageState extends State<RegisterPage>
                     : () {
                       context.pop();
                     },
-            child: const Text('Iniciar Sesión'),
+            child: Text('login.login'.tr()),
           ),
         ],
       ),

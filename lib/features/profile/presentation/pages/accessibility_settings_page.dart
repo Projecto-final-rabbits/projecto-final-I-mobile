@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,16 +10,19 @@ class AccessibilitySettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Accesibilidad')),
+      appBar: AppBar(title: Text('accessibility.title'.tr())),
       body: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               // Theme mode section
-              const Text(
-                'Tema',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                'accessibility.theme'.tr(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               _buildThemeModeSelector(context, state),
@@ -26,9 +30,12 @@ class AccessibilitySettingsPage extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Text size section
-              const Text(
-                'Tamaño de fuente',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                'accessibility.fontSize'.tr(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               _buildTextSizeSelector(context, state),
@@ -44,7 +51,7 @@ class AccessibilitySettingsPage extends StatelessWidget {
       child: Column(
         children: [
           RadioListTile<ThemeMode>(
-            title: const Text('Sistema'),
+            title: Text('accessibility.system'.tr()),
             value: ThemeMode.system,
             groupValue: state.themeMode,
             onChanged: (value) {
@@ -54,7 +61,7 @@ class AccessibilitySettingsPage extends StatelessWidget {
             },
           ),
           RadioListTile<ThemeMode>(
-            title: const Text('Claro'),
+            title: Text('accessibility.light'.tr()),
             value: ThemeMode.light,
             groupValue: state.themeMode,
             onChanged: (value) {
@@ -64,7 +71,7 @@ class AccessibilitySettingsPage extends StatelessWidget {
             },
           ),
           RadioListTile<ThemeMode>(
-            title: const Text('Oscuro'),
+            title: Text('accessibility.dark'.tr()),
             value: ThemeMode.dark,
             groupValue: state.themeMode,
             onChanged: (value) {
@@ -83,7 +90,7 @@ class AccessibilitySettingsPage extends StatelessWidget {
       child: Column(
         children: [
           RadioListTile<TextSize>(
-            title: const Text('Pequeño'),
+            title: Text('accessibility.small'.tr()),
             value: TextSize.small,
             groupValue: state.textSize,
             onChanged: (value) {
@@ -93,7 +100,7 @@ class AccessibilitySettingsPage extends StatelessWidget {
             },
           ),
           RadioListTile<TextSize>(
-            title: const Text('Mediano'),
+            title: Text('accessibility.medium'.tr()),
             value: TextSize.medium,
             groupValue: state.textSize,
             onChanged: (value) {
@@ -103,7 +110,7 @@ class AccessibilitySettingsPage extends StatelessWidget {
             },
           ),
           RadioListTile<TextSize>(
-            title: const Text('Grande'),
+            title: Text('accessibility.large'.tr()),
             value: TextSize.large,
             groupValue: state.textSize,
             onChanged: (value) {

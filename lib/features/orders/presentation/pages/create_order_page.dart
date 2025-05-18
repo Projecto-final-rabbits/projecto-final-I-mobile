@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -169,7 +170,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Información del Cliente',
+                        'order.clientInfo'.tr(),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
@@ -180,9 +181,9 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if (_selectedClient == null)
-                                const Text(
-                                  'Ningún cliente seleccionado',
-                                  style: TextStyle(
+                                Text(
+                                  'order.noClientSelected'.tr(),
+                                  style: const TextStyle(
                                     fontStyle: FontStyle.italic,
                                     color: Colors.grey,
                                   ),
@@ -192,7 +193,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _selectedClient!.name ?? 'Sin nombre',
+                                      _selectedClient!.name ??
+                                          'order.noName'.tr(),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -202,13 +204,15 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                                     Text(_selectedClient!.email),
                                     if (_selectedClient!.phone != null) ...[
                                       const SizedBox(height: 4),
-                                      Text('Tel: ${_selectedClient!.phone}'),
+                                      Text(
+                                        '${'order.tel'.tr()} ${_selectedClient!.phone}',
+                                      ),
                                     ],
                                     if (_selectedClient!.clientType !=
                                         null) ...[
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Tipo: ${_selectedClient!.clientType}',
+                                        '${'order.type'.tr()} ${_selectedClient!.clientType}',
                                         style: TextStyle(
                                           color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.bold,
@@ -224,8 +228,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                                   onPressed: _selectClient,
                                   child: Text(
                                     _selectedClient == null
-                                        ? 'Seleccionar Cliente'
-                                        : 'Cambiar Cliente',
+                                        ? 'order.selectClient'.tr()
+                                        : 'order.changeClient'.tr(),
                                   ),
                                 ),
                               ),
@@ -236,13 +240,13 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _deliveryAddressController,
-                        decoration: const InputDecoration(
-                          labelText: 'Dirección de entrega',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: 'order.deliveryAddress'.tr(),
+                          border: const OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor ingrese una dirección';
+                            return 'order.deliveryAddressRequired'.tr();
                           }
                           return null;
                         },
@@ -252,13 +256,13 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Productos',
+                            'order.products'.tr(),
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           ElevatedButton.icon(
                             onPressed: _addProduct,
                             icon: const Icon(Icons.add),
-                            label: const Text('Añadir producto'),
+                            label: Text('order.addProduct'.tr()),
                           ),
                         ],
                       ),
@@ -271,8 +275,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'No hay productos seleccionados. Haga clic en "Añadir producto" para agregar productos a la orden.',
+                          child: Text(
+                            'order.noProductsSelected'.tr(),
                             textAlign: TextAlign.center,
                           ),
                         )
@@ -297,7 +301,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Total:',
+                            'order.total'.tr(),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           Text(
@@ -315,7 +319,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(16),
                           ),
-                          child: const Text('Crear Orden'),
+                          child: Text('order.createOrder'.tr()),
                         ),
                       ),
                     ],

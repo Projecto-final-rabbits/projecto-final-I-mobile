@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -106,17 +107,17 @@ class _ProductSelectionBottomSheetState
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          const Text(
-            'Seleccionar producto',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            'product.selectProduct'.tr(),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
-              labelText: 'Buscar producto',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: 'product.searchProduct'.tr(),
+              prefixIcon: const Icon(Icons.search),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -128,16 +129,14 @@ class _ProductSelectionBottomSheetState
                 } else if (state is ProductsError) {
                   return Center(
                     child: Text(
-                      'Error: ${state.message}',
+                      '${'product.error'.tr()} ${state.message}',
                       style: const TextStyle(color: Colors.red),
                     ),
                   );
                 } else if (state is ProductsLoaded) {
                   final filteredProducts = _filterProducts(state.products);
                   if (filteredProducts.isEmpty) {
-                    return const Center(
-                      child: Text('No se encontraron productos'),
-                    );
+                    return Center(child: Text('product.noProductsFound'.tr()));
                   }
                   return ListView.builder(
                     itemCount: filteredProducts.length,
@@ -158,9 +157,7 @@ class _ProductSelectionBottomSheetState
                     },
                   );
                 }
-                return const Center(
-                  child: Text('No hay productos disponibles'),
-                );
+                return Center(child: Text('product.noProductsAvailable'.tr()));
               },
             ),
           ),
@@ -241,9 +238,9 @@ class _ProductCardState extends State<ProductCard> {
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text(
-                      'PROMO',
-                      style: TextStyle(
+                    child: Text(
+                      'product.promo'.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -285,7 +282,7 @@ class _ProductCardState extends State<ProductCard> {
                 ),
                 ElevatedButton(
                   onPressed: () => widget.onSelected(_quantity),
-                  child: const Text('Agregar'),
+                  child: Text('product.add'.tr()),
                 ),
               ],
             ),

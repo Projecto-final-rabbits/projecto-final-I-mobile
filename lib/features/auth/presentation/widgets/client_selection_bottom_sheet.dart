@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -93,17 +94,17 @@ class _ClientSelectionBottomSheetState
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          const Text(
-            'Seleccionar cliente',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            'client.selectClient'.tr(),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
-              labelText: 'Buscar cliente',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: 'client.searchClient'.tr(),
+              prefixIcon: const Icon(Icons.search),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -115,16 +116,14 @@ class _ClientSelectionBottomSheetState
                 } else if (state is ClientsError) {
                   return Center(
                     child: Text(
-                      'Error: ${state.message}',
+                      '${'client.error'.tr()} ${state.message}',
                       style: const TextStyle(color: Colors.red),
                     ),
                   );
                 } else if (state is ClientsLoaded) {
                   final filteredClients = _filterClients(state.clients);
                   if (filteredClients.isEmpty) {
-                    return const Center(
-                      child: Text('No se encontraron clientes'),
-                    );
+                    return Center(child: Text('client.noClientsFound'.tr()));
                   }
                   return ListView.builder(
                     itemCount: filteredClients.length,
@@ -140,7 +139,7 @@ class _ClientSelectionBottomSheetState
                     },
                   );
                 }
-                return const Center(child: Text('No hay clientes disponibles'));
+                return Center(child: Text('client.noClientsAvailable'.tr()));
               },
             ),
           ),
@@ -168,7 +167,7 @@ class ClientCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                client.name ?? 'Cliente sin nombre',
+                client.name ?? 'client.noName'.tr(),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -182,17 +181,17 @@ class ClientCard extends StatelessWidget {
               const SizedBox(height: 4),
               if (client.address != null)
                 Text(
-                  'Dirección: ${client.address}',
+                  '${'client.address'.tr()} ${client.address}',
                   style: const TextStyle(fontSize: 12),
                 ),
               if (client.phone != null)
                 Text(
-                  'Teléfono: ${client.phone}',
+                  '${'client.phone'.tr()} ${client.phone}',
                   style: const TextStyle(fontSize: 12),
                 ),
               if (client.clientType != null)
                 Text(
-                  'Tipo: ${client.clientType}',
+                  '${'client.type'.tr()} ${client.clientType}',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,

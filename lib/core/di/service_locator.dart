@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpp_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:cpp_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:cpp_app/features/auth/data/datasources/client_remote_data_source.dart';
@@ -56,6 +57,7 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => GoogleSignIn());
+  sl.registerLazySingleton(() => FirebaseFirestore.instance);
 
   // Register SharedPreferences as a singleton
   sl.registerSingletonAsync<SharedPreferences>(() async {
@@ -77,6 +79,7 @@ Future<void> setupServiceLocator() async {
       firebaseAuth: sl<FirebaseAuth>(),
       googleSignIn: sl<GoogleSignIn>(),
       httpSeller: sl<Dio>(),
+      firestore: sl<FirebaseFirestore>(),
     ),
   );
 

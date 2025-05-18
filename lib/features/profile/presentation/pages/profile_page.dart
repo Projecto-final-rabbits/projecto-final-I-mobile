@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +14,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil')),
+      appBar: AppBar(title: Text('profile.title'.tr())),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -21,12 +22,12 @@ class ProfilePage extends StatelessWidget {
             // User Avatar
             const CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
             const SizedBox(height: 16),
-            const Text(
-              'Usuario',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              'profile.user'.tr(),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text('usuario@ejemplo.com', style: TextStyle(fontSize: 16)),
+            Text('profile.email'.tr(), style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 32),
 
             // Settings options
@@ -43,11 +44,11 @@ class ProfilePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 16),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
             child: Text(
-              'Configuración',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'profile.settings'.tr(),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 8),
@@ -57,8 +58,8 @@ class ProfilePage extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               leading: const Icon(Icons.accessibility_new),
-              title: const Text('Accesibilidad'),
-              subtitle: const Text('Modo oscuro, tamaño de letra'),
+              title: Text('profile.accessibility'.tr()),
+              subtitle: Text('profile.accessibilitySubtitle'.tr()),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap:
                   () => Navigator.push(
@@ -75,7 +76,7 @@ class ProfilePage extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               leading: const Icon(Icons.notifications),
-              title: const Text('Notificaciones'),
+              title: Text('profile.notifications'.tr()),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 // Navigate to notifications settings
@@ -87,7 +88,7 @@ class ProfilePage extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               leading: const Icon(Icons.security),
-              title: const Text('Seguridad'),
+              title: Text('profile.security'.tr()),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 // Navigate to security settings
@@ -120,7 +121,7 @@ class ProfilePage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 icon: const Icon(Icons.exit_to_app),
-                label: const Text('Cerrar Sesión'),
+                label: Text('profile.logout'.tr()),
                 onPressed: () {
                   sl<AuthCubit>().logOut();
                 },

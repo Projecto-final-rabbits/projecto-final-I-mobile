@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:cpp_app/core/error/failures.dart';
+import 'package:cpp_app/core/services/user_preferences_service.dart';
 import 'package:cpp_app/features/auth/domain/entities/user.dart';
 import 'package:cpp_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:cpp_app/features/auth/domain/usecases/sign_in_with_email_password.dart';
@@ -24,6 +25,9 @@ class MockSignOut extends Mock implements SignOut {}
 
 class MockGetCurrentUser extends Mock implements GetCurrentUser {}
 
+class MockUserPreferencesService extends Mock
+    implements UserPreferencesService {}
+
 void main() {
   late AuthCubit authCubit;
   late MockSignInWithEmailPassword mockSignIn;
@@ -31,6 +35,7 @@ void main() {
   late MockSignUpSeller mockSignUpSeller;
   late MockSignOut mockSignOut;
   late MockGetCurrentUser mockGetCurrentUser;
+  late MockUserPreferencesService mockUserPreferencesService;
 
   // Test data
   const tUser = User(
@@ -104,6 +109,8 @@ void main() {
     registerFallbackValue(const Left<Failure, User?>(tFailure));
     registerFallbackValue(const Right<Failure, void>(null));
     registerFallbackValue(const Left<Failure, void>(tFailure));
+    registerFallbackValue(UserRole.client);
+    registerFallbackValue(UserRole.seller);
   });
 
   setUp(() {
@@ -112,9 +119,18 @@ void main() {
     mockSignUpSeller = MockSignUpSeller();
     mockSignOut = MockSignOut();
     mockGetCurrentUser = MockGetCurrentUser();
+    mockUserPreferencesService = MockUserPreferencesService();
 
     // Default stub for getCurrentUser in most tests (can be overridden in specific tests)
     when(() => mockGetCurrentUser()).thenAnswer((_) async => const Right(null));
+
+    // Default stub for user preferences service methods
+    when(
+      () => mockUserPreferencesService.saveUserRole(any()),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockUserPreferencesService.clearUserRole(),
+    ).thenAnswer((_) async {});
 
     // Create the main cubit instance used in most tests
     // Note: checkAuthStatus will run here
@@ -124,11 +140,45 @@ void main() {
       signUpSeller: mockSignUpSeller,
       signOut: mockSignOut,
       getCurrentUser: mockGetCurrentUser,
+      userPreferencesService: mockUserPreferencesService,
     );
   });
 
   tearDown(() {
     authCubit.close();
+  });
+
+  group('checkAuthStatus', () {
+    test(
+      'should save user role to preferences when user is authenticated',
+      () async {
+        // Arrange
+        when(
+          () => mockGetCurrentUser(),
+        ).thenAnswer((_) async => const Right(tUser));
+
+        // Act
+        final authCubit = AuthCubit(
+          signInWithEmailPassword: mockSignIn,
+          signUpClient: mockSignUpClient,
+          signUpSeller: mockSignUpSeller,
+          signOut: mockSignOut,
+          getCurrentUser: mockGetCurrentUser,
+          userPreferencesService: mockUserPreferencesService,
+        );
+
+        // Let the constructor finish
+        await Future.delayed(Duration.zero);
+
+        // Assert
+        verify(
+          () => mockUserPreferencesService.saveUserRole(tUser.role),
+        ).called(1);
+
+        // Cleanup
+        authCubit.close();
+      },
+    );
   });
 
   group('logInWithEmailAndPassword', () {
@@ -148,6 +198,9 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.authenticated(tUser)],
       verify: (_) {
         verify(() => mockSignIn(tSignInParams)).called(1);
+        verify(
+          () => mockUserPreferencesService.saveUserRole(tUser.role),
+        ).called(1);
       },
     );
 
@@ -164,6 +217,7 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.error(tFailure.message)],
       verify: (_) {
         verify(() => mockSignIn(tSignInParams)).called(1);
+        verifyNever(() => mockUserPreferencesService.saveUserRole(any()));
       },
     );
   });
@@ -190,6 +244,9 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.authenticated(tClientUser)],
       verify: (_) {
         verify(() => mockSignUpClient(tSignUpClientParams)).called(1);
+        verify(
+          () => mockUserPreferencesService.saveUserRole(tClientUser.role),
+        ).called(1);
       },
     );
 
@@ -214,6 +271,7 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.error(tFailure.message)],
       verify: (_) {
         verify(() => mockSignUpClient(tSignUpClientParams)).called(1);
+        verifyNever(() => mockUserPreferencesService.saveUserRole(any()));
       },
     );
   });
@@ -239,6 +297,9 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.authenticated(tSellerUser)],
       verify: (_) {
         verify(() => mockSignUpSeller(tSignUpSellerParams)).called(1);
+        verify(
+          () => mockUserPreferencesService.saveUserRole(tSellerUser.role),
+        ).called(1);
       },
     );
 
@@ -262,28 +323,29 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.error(tFailure.message)],
       verify: (_) {
         verify(() => mockSignUpSeller(tSignUpSellerParams)).called(1);
+        verifyNever(() => mockUserPreferencesService.saveUserRole(any()));
       },
     );
   });
 
   group('logOut', () {
     blocTest<AuthCubit, AuthState>(
-      'emits [loading, unauthenticated] when signOut is successful',
+      'emits [loading, unauthenticated] when logOut is successful',
       setUp: () {
         when(() => mockSignOut()).thenAnswer((_) async => const Right(null));
       },
       build: () => authCubit,
-      // Assume starting from an authenticated state for logout
       seed: () => AuthState.authenticated(tUser),
       act: (cubit) => cubit.logOut(),
       expect: () => [AuthState.loading(), AuthState.unauthenticated()],
       verify: (_) {
         verify(() => mockSignOut()).called(1);
+        verify(() => mockUserPreferencesService.clearUserRole()).called(1);
       },
     );
 
     blocTest<AuthCubit, AuthState>(
-      'emits [loading, error] when signOut fails',
+      'emits [loading, error] when logOut fails',
       setUp: () {
         when(() => mockSignOut()).thenAnswer((_) async => const Left(tFailure));
       },
@@ -293,6 +355,7 @@ void main() {
       expect: () => [AuthState.loading(), AuthState.error(tFailure.message)],
       verify: (_) {
         verify(() => mockSignOut()).called(1);
+        verifyNever(() => mockUserPreferencesService.clearUserRole());
       },
     );
   });

@@ -38,6 +38,7 @@ import '../../features/orders/presentation/cubits/order_detail_cubit.dart';
 import '../../features/orders/presentation/cubits/orders_cubit.dart';
 import '../../features/orders/presentation/cubits/products_cubit.dart';
 import '../network/network_info.dart';
+import '../services/user_preferences_service.dart';
 import '../theme/theme_cubit.dart';
 
 final GetIt sl = GetIt.instance;
@@ -66,6 +67,11 @@ Future<void> setupServiceLocator() async {
 
   // Wait for SharedPreferences to be ready
   await sl.isReady<SharedPreferences>();
+
+  // Register services
+  sl.registerLazySingleton<UserPreferencesService>(
+    () => UserPreferencesService(),
+  );
 
   // Now register ThemeCubit with the available SharedPreferences
   sl.registerLazySingleton<ThemeCubit>(
@@ -118,6 +124,7 @@ Future<void> setupServiceLocator() async {
       signUpSeller: sl<SignUpSeller>(),
       signOut: sl<SignOut>(),
       getCurrentUser: sl<GetCurrentUser>(),
+      userPreferencesService: sl<UserPreferencesService>(),
     ),
   );
 

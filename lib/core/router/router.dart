@@ -2,10 +2,12 @@ import 'package:cpp_app/features/orders/domain/entities/order.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/domain/entities/user.dart';
 import '../../features/auth/presentation/cubits/auth_cubit.dart';
 import '../../features/auth/presentation/cubits/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/orders/presentation/pages/create_order_page.dart';
 import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
@@ -22,20 +24,31 @@ GoRouter createRouter(AuthCubit authCubit) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/login',
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final authState = authCubit.state;
       final isAuthRoute =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
-      // If user is authenticated and trying to access auth routes, redirect to home
+      // If user is authenticated and trying to access auth routes, redirect to appropriate page
       if (authState.status == AuthStatus.authenticated && isAuthRoute) {
+        // If the user is a seller, redirect to home page, otherwise to orders
+        if (authState.user?.role == UserRole.seller) {
+          return '/home';
+        }
         return '/orders';
       }
 
       // If user is not authenticated and trying to access protected routes, redirect to login
       if (authState.status == AuthStatus.unauthenticated && !isAuthRoute) {
         return '/login';
+      }
+
+      // If user is authenticated and accessing home page but is not a seller, redirect to orders
+      if (authState.status == AuthStatus.authenticated &&
+          state.matchedLocation == '/home' &&
+          authState.user?.role != UserRole.seller) {
+        return '/orders';
       }
 
       // No redirection needed
@@ -60,6 +73,18 @@ GoRouter createRouter(AuthCubit authCubit) {
           return ShellScaffold(navigationShell: navigationShell);
         },
         branches: [
+          // Home Branch (only visible to sellers via ShellScaffold)
+          StatefulShellBranch(
+            navigatorKey: _shellNavigatorHomeKey,
+            routes: [
+              GoRoute(
+                path: '/home',
+                name: 'home',
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+
           // Orders Branch
           StatefulShellBranch(
             navigatorKey: _shellNavigatorOrdersKey,

@@ -37,7 +37,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw AuthException(message: 'No se pudo iniciar sesión');
       }
 
-      // Retrieve user role from Firestore
       final userData = await _getUserData(user.uid);
       final userRole = _getUserRole(userData);
 
@@ -74,11 +73,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (userCredential.user == null) {
         throw AuthException(message: 'No se pudo crear la cuenta');
       }
-
-      // Update the user's display name
       await userCredential.user!.updateDisplayName(name);
 
-      // Store role and additional data in Firestore
       await _storeUserData(userCredential.user!.uid, {
         'role': UserRole.client.name.toString(),
         'clientType': clientType,
@@ -88,7 +84,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'email': email,
       });
 
-      // Create user model
       final userModel = UserModel.fromFirebaseUser(
         userCredential.user!,
         role: UserRole.client,
@@ -136,7 +131,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       await userCredential.user!.updateDisplayName(name);
 
-      // Store role and additional data in Firestore
       await _storeUserData(userCredential.user!.uid, {
         'role': UserRole.seller.name.toString(),
         'zone': zone,
@@ -182,7 +176,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return null;
       }
 
-      // Retrieve user role from Firestore
       final userData = await _getUserData(user.uid);
       final userRole = _getUserRole(userData);
 
@@ -199,7 +192,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  // Helper method to store user data in Firestore
   Future<void> _storeUserData(String uid, Map<String, dynamic> data) async {
     try {
       await firestore.collection('users').doc(uid).set(data);
@@ -208,7 +200,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  // Helper method to get user data from Firestore
   Future<Map<String, dynamic>?> _getUserData(String uid) async {
     try {
       final docSnapshot = await firestore.collection('users').doc(uid).get();
@@ -218,10 +209,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  // Helper method to parse user role from Firestore data
   UserRole _getUserRole(Map<String, dynamic>? userData) {
     if (userData == null || userData['role'] == null) {
-      return UserRole.client; // Default role
+      return UserRole.client;
     }
 
     final roleString = userData['role'].toString();
@@ -232,7 +222,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  // Helper method to get user-friendly error messages
   String _getErrorMessage(String errorCode) {
     switch (errorCode) {
       case 'user-not-found':

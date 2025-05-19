@@ -303,11 +303,7 @@ class _RegisterPageState extends State<RegisterPage>
                     if (value == null || value.isEmpty) {
                       return 'login.emailRequired'.tr();
                     }
-                    if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$',
-                    ).hasMatch(value)) {
-                      return 'login.emailError'.tr();
-                    }
+
                     return null;
                   },
                 ),

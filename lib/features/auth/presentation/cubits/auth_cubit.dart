@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/user_preferences_service.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/sign_in_with_email_password.dart';
 import '../../domain/usecases/sign_out.dart';
@@ -13,6 +14,7 @@ class AuthCubit extends Cubit<AuthState> {
   final SignUpSeller signUpSeller;
   final SignOut signOut;
   final GetCurrentUser getCurrentUser;
+  final UserPreferencesService userPreferencesService;
 
   AuthCubit({
     required this.signInWithEmailPassword,
@@ -20,6 +22,7 @@ class AuthCubit extends Cubit<AuthState> {
     required this.signUpSeller,
     required this.signOut,
     required this.getCurrentUser,
+    required this.userPreferencesService,
   }) : super(AuthState.initial()) {
     checkAuthStatus();
   }
@@ -30,6 +33,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     result.fold((failure) => emit(AuthState.error(failure.message)), (user) {
       if (user != null) {
+        userPreferencesService.saveUserRole(user.role);
         emit(AuthState.authenticated(user));
       } else {
         emit(AuthState.unauthenticated());
@@ -47,10 +51,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     final result = await signInWithEmailPassword(params);
 
-    result.fold(
-      (failure) => emit(AuthState.error(failure.message)),
-      (user) => emit(AuthState.authenticated(user)),
-    );
+    result.fold((failure) => emit(AuthState.error(failure.message)), (user) {
+      userPreferencesService.saveUserRole(user.role);
+      emit(AuthState.authenticated(user));
+    });
   }
 
   Future<void> registerClient(
@@ -74,10 +78,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     final result = await signUpClient(params);
 
-    result.fold(
-      (failure) => emit(AuthState.error(failure.message)),
-      (user) => emit(AuthState.authenticated(user)),
-    );
+    result.fold((failure) => emit(AuthState.error(failure.message)), (user) {
+      userPreferencesService.saveUserRole(user.role);
+      emit(AuthState.authenticated(user));
+    });
   }
 
   Future<void> registerSeller(
@@ -99,10 +103,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     final result = await signUpSeller(params);
 
-    result.fold(
-      (failure) => emit(AuthState.error(failure.message)),
-      (user) => emit(AuthState.authenticated(user)),
-    );
+    result.fold((failure) => emit(AuthState.error(failure.message)), (user) {
+      userPreferencesService.saveUserRole(user.role);
+      emit(AuthState.authenticated(user));
+    });
   }
 
   Future<void> logOut() async {
@@ -110,9 +114,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     final result = await signOut();
 
-    result.fold(
-      (failure) => emit(AuthState.error(failure.message)),
-      (_) => emit(AuthState.unauthenticated()),
-    );
+    result.fold((failure) => emit(AuthState.error(failure.message)), (_) {
+      // Clear user role from shared preferences
+      userPreferencesService.clearUserRole();
+      emit(AuthState.unauthenticated());
+    });
   }
 }

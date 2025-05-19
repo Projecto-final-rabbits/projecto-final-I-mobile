@@ -39,6 +39,19 @@ class AccessibilitySettingsPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               _buildTextSizeSelector(context, state),
+
+              const SizedBox(height: 24),
+
+              // Language section
+              Text(
+                'accessibility.language'.tr(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildLanguageSelector(context),
             ],
           );
         },
@@ -116,6 +129,37 @@ class AccessibilitySettingsPage extends StatelessWidget {
             onChanged: (value) {
               if (value != null) {
                 context.read<ThemeCubit>().setTextSize(value);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageSelector(BuildContext context) {
+    final currentLocale = context.locale;
+
+    return Card(
+      child: Column(
+        children: [
+          RadioListTile<String>(
+            title: Text('accessibility.spanish'.tr()),
+            value: 'es',
+            groupValue: currentLocale.languageCode,
+            onChanged: (value) {
+              if (value != null) {
+                context.setLocale(const Locale('es'));
+              }
+            },
+          ),
+          RadioListTile<String>(
+            title: Text('accessibility.english'.tr()),
+            value: 'en',
+            groupValue: currentLocale.languageCode,
+            onChanged: (value) {
+              if (value != null) {
+                context.setLocale(const Locale('en'));
               }
             },
           ),

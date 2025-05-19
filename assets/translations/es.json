@@ -100,7 +100,10 @@
         "dark": "Oscuro",
         "small": "Pequeño",
         "medium": "Mediano",
-        "large": "Grande"
+        "large": "Grande",
+        "language": "Idioma",
+        "spanish": "Español",
+        "english": "Inglés"
     },
     "google": "Google"
 }

@@ -1,3 +1,4 @@
+import 'package:cpp_app/features/orders/domain/entities/order_detail.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
 import '../../../../core/error/exceptions.dart';
@@ -34,11 +35,13 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<dartz.Either<Failure, Order>> getOrderDetail(String orderId) async {
+  Future<dartz.Either<Failure, List<ProductDetail>>> getOrderDetails(
+    String orderId,
+  ) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteOrder = await remoteDataSource.getOrderDetail(orderId);
-        return dartz.Right(remoteOrder);
+        final orderDetails = await remoteDataSource.getOrderDetails(orderId);
+        return dartz.Right(orderDetails);
       } on ServerException catch (e) {
         return dartz.Left(ServerFailure(message: e.message));
       }

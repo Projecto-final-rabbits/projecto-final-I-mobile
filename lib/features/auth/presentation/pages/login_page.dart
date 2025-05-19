@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
         body: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state.status == AuthStatus.authenticated) {
-              context.go('/home');
+              context.go('/orders');
             } else if (state.status == AuthStatus.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -79,11 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                               if (value == null || value.isEmpty) {
                                 return 'login.emailRequired'.tr();
                               }
-                              if (!RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$',
-                              ).hasMatch(value)) {
-                                return 'login.emailError'.tr();
-                              }
+
                               return null;
                             },
                           ),

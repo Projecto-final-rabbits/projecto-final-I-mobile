@@ -12,12 +12,21 @@ class OrderDetailInitial extends OrderDetailState {}
 class OrderDetailLoading extends OrderDetailState {}
 
 class OrderDetailLoaded extends OrderDetailState {
-  final Order order;
+  final List<ProductDetail> productDetails;
 
-  const OrderDetailLoaded({required this.order});
+  const OrderDetailLoaded({required this.productDetails});
 
   @override
-  List<Object> get props => [order];
+  List<Object> get props => [productDetails];
+}
+
+class OrderDetailsLoaded extends OrderDetailState {
+  final List<ProductDetail> orderDetails;
+
+  const OrderDetailsLoaded({required this.orderDetails});
+
+  @override
+  List<Object> get props => [orderDetails];
 }
 
 class OrderDetailError extends OrderDetailState {

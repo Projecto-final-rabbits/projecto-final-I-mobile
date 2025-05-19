@@ -1,21 +1,22 @@
-import 'package:cpp_app/features/orders/domain/entities/order_item.dart';
-import 'package:cpp_app/features/orders/domain/entities/product.dart';
+import 'package:cpp_app/features/orders/domain/entities/order.dart';
+import 'package:cpp_app/features/orders/domain/entities/order_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/service_locator.dart';
-import '../../domain/entities/order.dart';
 import '../cubits/order_detail_cubit.dart';
 
 class OrderDetailPage extends StatelessWidget {
-  final String orderId;
+  final Order order;
 
-  const OrderDetailPage({super.key, required this.orderId});
+  const OrderDetailPage({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<OrderDetailCubit>()..loadOrderDetail(orderId),
+      create:
+          (_) => sl<OrderDetailCubit>()..loadOrderDetail(order.id.toString()),
       child: Scaffold(
         appBar: AppBar(title: const Text('Detalle de Orden')),
         body: BlocBuilder<OrderDetailCubit, OrderDetailState>(
@@ -23,7 +24,10 @@ class OrderDetailPage extends StatelessWidget {
             if (state is OrderDetailLoading) {
               return const Center(child: CircularProgressIndicator());
             } else if (state is OrderDetailLoaded) {
-              return OrderDetailView(order: state.order);
+              return OrderDetailView(
+                order: order,
+                productDetails: state.productDetails,
+              );
             } else if (state is OrderDetailError) {
               return Center(child: Text('Error: ${state.message}'));
             } else {
@@ -38,12 +42,18 @@ class OrderDetailPage extends StatelessWidget {
 
 class OrderDetailView extends StatelessWidget {
   final Order order;
+  final List<ProductDetail> productDetails;
 
-  const OrderDetailView({super.key, required this.order});
+  const OrderDetailView({
+    super.key,
+    required this.order,
+    required this.productDetails,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final dateFormat = DateFormat('dd/MM/yyyy');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -62,6 +72,13 @@ class OrderDetailView extends StatelessWidget {
                   ),
                   const Divider(),
                   _buildInfoRow('ID:', order.id.toString()),
+                  _buildInfoRow('Cliente ID:', order.clientId.toString()),
+                  _buildInfoRow('Vendedor ID:', order.sellerId.toString()),
+                  _buildInfoRow(
+                    'Fecha de envío:',
+                    dateFormat.format(order.shipDate),
+                  ),
+                  _buildInfoRow('Dirección de entrega:', order.deliveryAddress),
                   if (order.status.isNotEmpty)
                     _buildInfoRow('Estado:', order.status),
                   _buildInfoRow(
@@ -75,7 +92,7 @@ class OrderDetailView extends StatelessWidget {
           const SizedBox(height: 16),
           Text('Productos', style: theme.textTheme.titleLarge),
           const SizedBox(height: 8),
-          ...order.products.map((item) => _buildProductCard(item, theme)),
+          ...productDetails.map((detail) => _buildProductCard(detail, theme)),
         ],
       ),
     );
@@ -88,7 +105,7 @@ class OrderDetailView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 80,
+            width: 120,
             child: Text(
               label,
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -100,58 +117,60 @@ class OrderDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(dynamic item, ThemeData theme) {
-    if (item is Product) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 8.0),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.name,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(item.description),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Categoría: ${item.category}',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  Text(
-                    '\$${item.salePrice.toStringAsFixed(2)}',
+  Widget _buildProductCard(ProductDetail detail, ThemeData theme) {
+    final product = detail.product;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    product.name,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-              if (item.hasPromotion)
-                Chip(
-                  label: const Text('Promoción activa'),
-                  backgroundColor: Colors.green.shade100,
-                  labelStyle: TextStyle(color: Colors.green.shade800),
                 ),
-            ],
-          ),
+                Chip(
+                  label: Text('Cantidad: ${detail.quantity}'),
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(product.description),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Categoría: ${product.category}',
+                  style: theme.textTheme.bodyMedium,
+                ),
+                Text(
+                  '\$${product.salePrice.toStringAsFixed(2)}',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            if (product.hasPromotion)
+              Chip(
+                label: const Text('Promoción activa'),
+                backgroundColor: Colors.green.shade100,
+                labelStyle: TextStyle(color: Colors.green.shade800),
+              ),
+          ],
         ),
-      );
-    } else if (item is OrderItem) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 8.0),
-        child: ListTile(
-          title: Text('Producto ID: ${item.productId}'),
-          subtitle: Text('Cantidad: ${item.quantity}'),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
+      ),
+    );
   }
 }

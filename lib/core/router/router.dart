@@ -1,3 +1,4 @@
+import 'package:cpp_app/features/orders/domain/entities/order.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -5,7 +6,6 @@ import '../../features/auth/presentation/cubits/auth_cubit.dart';
 import '../../features/auth/presentation/cubits/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/orders/presentation/pages/create_order_page.dart';
 import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
@@ -30,7 +30,7 @@ GoRouter createRouter(AuthCubit authCubit) {
 
       // If user is authenticated and trying to access auth routes, redirect to home
       if (authState.status == AuthStatus.authenticated && isAuthRoute) {
-        return '/home';
+        return '/orders';
       }
 
       // If user is not authenticated and trying to access protected routes, redirect to login
@@ -60,18 +60,6 @@ GoRouter createRouter(AuthCubit authCubit) {
           return ShellScaffold(navigationShell: navigationShell);
         },
         branches: [
-          // Home Branch
-          StatefulShellBranch(
-            navigatorKey: _shellNavigatorHomeKey,
-            routes: [
-              GoRoute(
-                path: '/home',
-                name: 'home',
-                builder: (context, state) => const HomePage(),
-              ),
-            ],
-          ),
-
           // Orders Branch
           StatefulShellBranch(
             navigatorKey: _shellNavigatorOrdersKey,
@@ -101,11 +89,11 @@ GoRouter createRouter(AuthCubit authCubit) {
       // Non-shell routes
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
-        path: '/order-details/:orderId',
+        path: '/order-details',
         name: 'order-details',
         builder: (context, state) {
-          final orderId = state.pathParameters['orderId'] ?? '';
-          return OrderDetailPage(orderId: orderId);
+          final order = state.extra as Order;
+          return OrderDetailPage(order: order);
         },
       ),
       GoRoute(

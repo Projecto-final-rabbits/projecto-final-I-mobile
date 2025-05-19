@@ -85,11 +85,7 @@ class OrderListItem extends StatelessWidget {
           '\$${order.total.toStringAsFixed(2)}',
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        onTap:
-            () => context.pushNamed(
-              'order-details',
-              pathParameters: {'orderId': order.id.toString()},
-            ),
+        onTap: () => context.pushNamed('order-details', extra: order),
       ),
     );
   }

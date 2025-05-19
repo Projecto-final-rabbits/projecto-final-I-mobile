@@ -81,7 +81,7 @@ class _RegisterPageState extends State<RegisterPage>
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
-            context.go('/home');
+            context.go('/orders');
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
